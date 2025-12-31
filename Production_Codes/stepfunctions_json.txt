@@ -25,10 +25,10 @@
       }
     ],
     "OutputDataConfig": {
-      "S3OutputPath": "s3://mlops-creditcard/artifacts/trained_model/"
+      "S3OutputPath": "s3://mlops-creditcard/prod/artifacts/trained_model/"
     },
     "ResourceConfig": {
-      "InstanceType": "ml.m5.large",
+      "InstanceType": "ml.t3.medium",
       "InstanceCount": 1,
       "VolumeSizeInGB": 10
     },
