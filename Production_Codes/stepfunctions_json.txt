@@ -6,12 +6,12 @@
   "Type": "Task",
   "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
   "Parameters": {
-    "TrainingJobName.$": "States.Format('creditcard-train-{}', States.Timestamp())",
+    "TrainingJobName": "creditcard-training-job",
     "AlgorithmSpecification": {
       "TrainingImage": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn:1.2-1-cpu-py3",
       "TrainingInputMode": "File"
     },
-    "RoleArn": "REPLACE_WITH_SAGEMAKER_ROLE_ARN",
+    "RoleArn": "arn:aws:iam::075960506214:role/service-role/AmazonSageMaker-ExecutionRole-20251229T181530",
     "InputDataConfig": [
       {
         "ChannelName": "train",
@@ -25,7 +25,7 @@
       }
     ],
     "OutputDataConfig": {
-      "S3OutputPath": "s3://mlops-creditcard/prod/artifacts/trained_model/"
+      "S3OutputPath": "s3://mlops-creditcard/prod_outputs/artifacts/trained_model/"
     },
     "ResourceConfig": {
       "InstanceType": "ml.t3.medium",
@@ -37,7 +37,7 @@
     },
     "HyperParameters": {
       "sagemaker_program": "train.py",
-      "sagemaker_submit_directory": "s3://mlops-creditcard/scripts/"
+      "sagemaker_submit_directory": "s3://mlops-creditcard/prod_codes/"
     }
   },
   "Next": "RegisterModel"
