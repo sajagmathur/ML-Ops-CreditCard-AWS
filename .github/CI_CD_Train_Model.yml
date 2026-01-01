@@ -1,0 +1,61 @@
+name: Deploy ML Ops Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "Production_Codes/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # -----------------------------
+    # 1. Checkout code
+    # -----------------------------
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # -----------------------------
+    # 2. Configure AWS credentials
+    # -----------------------------
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    # -----------------------------
+    # 3. Create source archive (tar.gz)
+    # REQUIRED by SageMaker
+    # -----------------------------
+    - name: Package production code
+      run: |
+        cd Production_Codes
+        tar -czvf source_dir.tar.gz *
+        ls -lh
+
+    # -----------------------------
+    # 4. Upload to S3
+    # -----------------------------
+    - name: Upload training package to S3
+      run: |
+        aws s3 cp Production_Codes/source_dir.tar.gz \
+          s3://mlops-creditcard/prod_codes/source_dir.tar.gz
+
+    # -----------------------------
+    # 5. Trigger Step Functions
+    # -----------------------------
+    - name: Trigger Step Functions workflow
+      run: |
+        aws stepfunctions start-execution \
+          --state-machine-arn ${{ secrets.STEPFUNCTIONS_ARN }} \
+          --input '{
+            "s3_code_path": "s3://mlops-creditcard/prod_codes/source_dir.tar.gz",
+            "triggered_by": "github_actions",
+            "commit_sha": "${{ github.sha }}"
+          }'
