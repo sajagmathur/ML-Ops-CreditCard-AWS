@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "Production_Codes/**"
-
+    
 jobs:
   deploy:
     runs-on: ubuntu-latest
