@@ -5,6 +5,7 @@ Registers SageMaker-trained model into MLflow
 - Logs artifacts to MLflow
 - Registers model as challenger
 """
+print("===== START MLflow logging =====")
 
 import os
 import json
@@ -134,13 +135,14 @@ print("✅ Logged artifacts to MLflow")
 # -----------------------------
 # Register model
 # -----------------------------
-client = MlflowClient()
 model_uri = f"runs:/{run_id}/model"
 
-result = client.register_model(
-    name=MLFLOW_MODEL_NAME,
-    source=model_uri
+result = mlflow.register_model(
+    model_uri=model_uri,
+    name=MLFLOW_MODEL_NAME
 )
+
+client = MlflowClient()
 
 client.set_model_version_tag(
     name=MLFLOW_MODEL_NAME,
@@ -160,3 +162,5 @@ print("🏷️ Model registered & tagged")
 print("Model:", MLFLOW_MODEL_NAME)
 print("Version:", result.version)
 print("Run ID:", run_id)
+
+print("===== END MLflow logging =====")
