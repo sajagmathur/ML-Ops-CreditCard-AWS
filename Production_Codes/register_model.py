@@ -26,7 +26,7 @@ S3_BUCKET = "mlops-creditcard"
 # Passed via Step Functions / CLI / env
 MODEL_TAR_S3_URI = os.environ.get(
     "MODEL_TAR_S3_URI",
-    "s3://mlops-creditcard/prod_outputs/artifacts/trained_model/"
+    "s3://mlops-creditcard/prod_outputs/trained_model/"
 )
 
 MLFLOW_EXPERIMENT_NAME = "creditcard-fraud-experiment"
@@ -34,7 +34,7 @@ MLFLOW_MODEL_NAME = "creditcard-fraud-model"
 
 # MLflow EC2 backend (FIXED PATH ✅)
 MLFLOW_DB_PATH = "/home/ssm-user/mlflow/mlflow.db"
-MLFLOW_ARTIFACT_ROOT = f"s3://{S3_BUCKET}/prod_outputs/artifacts/mlflow"
+MLFLOW_ARTIFACT_ROOT = f"s3://{S3_BUCKET}/prod_outputs/mlflow"
 
 # -----------------------------
 # MLflow setup
