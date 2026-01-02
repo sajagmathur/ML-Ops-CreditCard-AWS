@@ -1,110 +1,146 @@
 """
-register_model converted from notebook
-Logs metrics and registers the trained model with MLflow, tagging it as challenger.
+Registers SageMaker-trained model into MLflow
+- Downloads model.tar.gz from S3
+- Extracts model + metrics
+- Logs artifacts to MLflow
+- Registers model as challenger
 """
-
-# Note: in the notebook a pip install cell was present. Ensure required packages are installed
-# before running this script: mlflow, boto3, scikit-learn, joblib
 
 import os
 import json
+import tarfile
+import tempfile
 import joblib
+import boto3
 import mlflow
 import mlflow.sklearn
 from datetime import datetime
 from mlflow.tracking import MlflowClient
-import boto3
 
+# -----------------------------
 # Configuration
-BASE_DIR = "./CREDITCARD/MODEL"
-MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
-METRICS_PATH = os.path.join(BASE_DIR, "metrics.json")
+# -----------------------------
+S3_BUCKET = "mlops-creditcard"
 
-S3_Bucket = "mlops-creditcard"
-S3_ARTIFACT_ROOT = f"s3://{S3_Bucket}"
+# Passed via Step Functions / CLI / env
+MODEL_TAR_S3_URI = os.environ.get(
+    "MODEL_TAR_S3_URI",
+    "s3://mlops-creditcard/prod_outputs/artifacts/trained_model/"
+)
 
 MLFLOW_EXPERIMENT_NAME = "creditcard-fraud-experiment"
 MLFLOW_MODEL_NAME = "creditcard-fraud-model"
 
-# Local backend Configuration (SQLite for persistence)
-db_path = "/home/ec2-user/SageMaker/ML-Ops-CreditCard-AWS/mlflow.db"
-os.makedirs(os.path.dirname(db_path), exist_ok=True)
-mlflow.set_tracking_uri(f"sqlite:///{db_path}")
+# MLflow EC2 backend (FIXED PATH ✅)
+MLFLOW_DB_PATH = "/home/ssm-user/mlflow/mlflow.db"
+MLFLOW_ARTIFACT_ROOT = f"s3://{S3_BUCKET}/prod_outputs/artifacts/mlflow"
 
-s3 = boto3.client("s3")
+# -----------------------------
+# MLflow setup
+# -----------------------------
+os.makedirs(os.path.dirname(MLFLOW_DB_PATH), exist_ok=True)
 
-try:
-    s3.list_objects_v2(Bucket=S3_Bucket, MaxKeys=1)
-    print("✅ S3 bucket accessible")
-except Exception as e:
-    print("❌ Cannot access S3 bucket:", e)
+mlflow.set_tracking_uri(f"sqlite:///{MLFLOW_DB_PATH}")
+mlflow.set_registry_uri(mlflow.get_tracking_uri())
 
 if not mlflow.get_experiment_by_name(MLFLOW_EXPERIMENT_NAME):
-    mlflow.create_experiment(MLFLOW_EXPERIMENT_NAME, artifact_location=f"s3://{S3_Bucket}/artifacts")
+    mlflow.create_experiment(
+        name=MLFLOW_EXPERIMENT_NAME,
+        artifact_location=MLFLOW_ARTIFACT_ROOT
+    )
 
 mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
-if not os.path.exists(MODEL_PATH):
-    raise FileNotFoundError(f"model not found at {MODEL_PATH}")
+# -----------------------------
+# Download model.tar.gz
+# -----------------------------
+s3 = boto3.client("s3")
 
-if not os.path.exists(METRICS_PATH):
-    raise FileNotFoundError(f"metrics not found at {METRICS_PATH}")
+def parse_s3_uri(uri):
+    uri = uri.replace("s3://", "")
+    bucket, key = uri.split("/", 1)
+    return bucket, key
 
-print("✅ Artifacts validated")
+bucket, prefix = parse_s3_uri(MODEL_TAR_S3_URI)
 
-mlflow.set_registry_uri(mlflow.get_tracking_uri())
+response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix)
+candidates = [
+    o for o in response.get("Contents", [])
+    if o["Key"].endswith("model.tar.gz")
+]
 
-# Load model & metrics (explicit disk load)
-model = joblib.load(MODEL_PATH)
-with open(METRICS_PATH, "r") as f:
+if not candidates:
+    raise FileNotFoundError("No model.tar.gz found in S3 path")
+
+model_obj = sorted(
+    candidates,
+    key=lambda x: x["LastModified"],
+    reverse=True
+)[0]
+
+model_key = model_obj["Key"]
+print(f"📦 Using model artifact: s3://{bucket}/{model_key}")
+
+tmp_dir = tempfile.mkdtemp()
+local_tar = os.path.join(tmp_dir, "model.tar.gz")
+
+s3.download_file(bucket, model_key, local_tar)
+
+# -----------------------------
+# Extract artifacts
+# -----------------------------
+with tarfile.open(local_tar, "r:gz") as tar:
+    tar.extractall(tmp_dir)
+
+model_path = os.path.join(tmp_dir, "model.pkl")
+metrics_path = os.path.join(tmp_dir, "metrics.json")
+
+if not os.path.exists(model_path):
+    raise FileNotFoundError("model.pkl not found in model.tar.gz")
+
+if not os.path.exists(metrics_path):
+    raise FileNotFoundError("metrics.json not found in model.tar.gz")
+
+print("✅ Extracted model & metrics")
+
+# -----------------------------
+# Load model and metrics
+# -----------------------------
+model = joblib.load(model_path)
+
+with open(metrics_path) as f:
     metrics = json.load(f)
 
-print("✅ Loaded model & metrics")
-print(metrics)
-
-run_name = f"run_{datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S')}"
+# -----------------------------
+# MLflow logging
+# -----------------------------
+run_name = f"register_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
 
 with mlflow.start_run(run_name=run_name) as run:
     run_id = run.info.run_id
 
-    # Log metrics
     for k, v in metrics.items():
-        mlflow.log_metric(k, v)
+        mlflow.log_metric(k, float(v))
 
-    # Log model using MLflow's sklearn logger
-    mlflow.sklearn.log_model(model, artifact_path="model")
+    mlflow.sklearn.log_model(
+        model,
+        artifact_path="model"
+    )
 
-    # Log metrics.json as artifact
-    mlflow.log_artifact(METRICS_PATH, artifact_path="metrics")
+    mlflow.log_artifact(metrics_path, artifact_path="metrics")
 
-    print("✅ Artifacts uploaded to S3")
-    print("Run ID:", run_id)
+print("✅ Logged artifacts to MLflow")
 
-MODEL_URI = f"runs:/{run_id}/model"
-
-result = mlflow.register_model(
-    model_uri=MODEL_URI,
-    name=MLFLOW_MODEL_NAME
-)
-
-print("✅ Model registered")
-print("Version:", result.version)
-
-# Verify experiment run
+# -----------------------------
+# Register model
+# -----------------------------
 client = MlflowClient()
-run = client.get_run(run_id)
-print("📌 Run info")
-print("Run ID:", run.info.run_id)
-print("Experiment ID:", run.info.experiment_id)
-print("Metrics:", run.data.metrics)
-print("Tags:", run.data.tags)
+model_uri = f"runs:/{run_id}/model"
 
-# Verify model registry and tag the new version as challenger
-registered_models = client.search_registered_models()
-for model_item in registered_models:
-    print(f"\n📦 Model: {model_item.name}")
-    for v in model_item.latest_versions:
-        print(f"   └── Version: {v.version}, Stage: {v.current_stage}, Run ID: {v.run_id}")
+result = client.register_model(
+    name=MLFLOW_MODEL_NAME,
+    source=model_uri
+)
 
 client.set_model_version_tag(
     name=MLFLOW_MODEL_NAME,
@@ -120,4 +156,7 @@ client.set_model_version_tag(
     value="staging"
 )
 
-print("🏷️ Model tagged as challenger")
+print("🏷️ Model registered & tagged")
+print("Model:", MLFLOW_MODEL_NAME)
+print("Version:", result.version)
+print("Run ID:", run_id)
