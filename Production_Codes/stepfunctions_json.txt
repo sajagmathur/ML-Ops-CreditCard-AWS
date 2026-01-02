@@ -3,46 +3,45 @@
   "StartAt": "TrainModel",
   "States": {
     "TrainModel": {
-  "Type": "Task",
-  "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
-  "Parameters": {
-    "TrainingJobName": "creditcard-training-job",
-    "AlgorithmSpecification": {
-      "TrainingImage": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn:1.2-1-cpu-py3",
-      "TrainingInputMode": "File"
-    },
-    "RoleArn": "arn:aws:iam::075960506214:role/service-role/AmazonSageMaker-ExecutionRole-20251229T181530",
-    "InputDataConfig": [
-      {
-        "ChannelName": "train",
-        "DataSource": {
-          "S3DataSource": {
-            "S3DataType": "S3Prefix",
-            "S3Uri": "s3://mlops-creditcard/data/raw/",
-            "S3DataDistributionType": "FullyReplicated"
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
+      "Parameters": {
+        "TrainingJobName.$": "States.Format('creditcard-training-job-{}', States.UUID())",
+        "AlgorithmSpecification": {
+          "TrainingImage": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn:1.2-1-cpu-py3",
+          "TrainingInputMode": "File"
+        },
+        "RoleArn": "arn:aws:iam::075960506214:role/service-role/AmazonSageMaker-ExecutionRole-20251229T181530",
+        "InputDataConfig": [
+          {
+            "ChannelName": "train",
+            "DataSource": {
+              "S3DataSource": {
+                "S3DataType": "S3Prefix",
+                "S3Uri": "s3://mlops-creditcard/data/raw/",
+                "S3DataDistributionType": "FullyReplicated"
+              }
+            }
           }
+        ],
+        "OutputDataConfig": {
+          "S3OutputPath": "s3://mlops-creditcard/prod_outputs/artifacts/trained_model/"
+        },
+        "ResourceConfig": {
+          "InstanceType": "ml.m5.large",
+          "InstanceCount": 1,
+          "VolumeSizeInGB": 10
+        },
+        "StoppingCondition": {
+          "MaxRuntimeInSeconds": 3600
+        },
+        "HyperParameters": {
+          "sagemaker_program": "train.py",
+          "sagemaker_submit_directory": "s3://mlops-creditcard/prod_codes/source_dir.tar.gz"
         }
-      }
-    ],
-    "OutputDataConfig": {
-      "S3OutputPath": "s3://mlops-creditcard/prod_outputs/artifacts/trained_model/"
+      },
+      "Next": "RegisterModel"
     },
-    "ResourceConfig": {
-      "InstanceType": "ml.t3.medium",
-      "InstanceCount": 1,
-      "VolumeSizeInGB": 10
-    },
-    "StoppingCondition": {
-      "MaxRuntimeInSeconds": 3600
-    },
-    "HyperParameters": {
-      "sagemaker_program": "train.py",
-      "sagemaker_submit_directory": "s3://mlops-creditcard/prod_codes/"
-    }
-  },
-  "Next": "RegisterModel"
-}
-,
     "RegisterModel": {
       "Type": "Pass",
       "Result": {
@@ -66,3 +65,297 @@
     }
   }
 }
+
+
+Notes: S3 Bucket: https://us-east-1.console.aws.amazon.com/s3/buckets?region=us-east-1
+Sage Maker Instance: https://us-east-1.console.aws.amazon.com/sagemaker/home?region=us-east-1#/notebook-instances
+GitHub: https://github.com/sajagmathur/ML-Ops-CreditCard-AWS/
+
+MLFlow Access: 
+source ~/.bashrc
+conda activate python3
+
+python -m mlflow ui --backend-store-uri sqlite:////home/ec2-user/SageMaker/ML-Ops-CreditCard-AWS/mlflow.db --host 0.0.0.0 --port 5000 --allowed-hosts "*"
+
+Empty ML Flow: rm /home/ec2-user/SageMaker/ML-Ops-CreditCard-AWS/mlflow.db
+
+Access Link: https://mlops-creditcard.notebook.us-east-1.sagemaker.aws/proxy/5000/
+
+
+
+
+Github Access Config: 
+cd ~/SageMaker/ML-Ops-CreditCard-AWS
+eval "$(ssh-agent -s)"
+ssh-add Secrets/id_ed25519
+git remote set-url origin git@github.com:sajagmathur/ML-Ops-CreditCard-AWS.git
+
+
+
+Build Sagemaker Connection with GitHub:
+	1. cd ~/SageMaker/ML-Ops-CreditCard-AWS
+	2. Create Secret Key and store in Secrets:
+	   ssh-keygen -t ed25519 -C "sajagmathur@gmail.com" -f Secrets/id_ed25519 -N ""
+2️⃣ Set secure permissions
+
+chmod 600 Secrets/id_ed25519
+chmod 644 Secrets/id_ed25519.pub
+	• Private key must be readable only by you
+	• Public key can be readable by others
+
+3️⃣ Add Secrets/ to .gitignore
+
+echo "Secrets/" >> .gitignore
+	• This prevents the folder (and your private key) from ever being pushed to GitHub
+
+4️⃣ Load the SSH key in your workflow
+Whenever you need Git access, run:
+cd ~/SageMaker/ML-Ops-CreditCard-AWS
+eval "$(ssh-agent -s)"
+ssh-add Secrets/id_ed25519
+git remote set-url origin git@github.com:sajagmathur/ML-Ops-CreditCard-AWS.git
+
+	• This starts the SSH agent if not already running and adds your key.
+	• Now git pull or git push will work via SSH.
+
+5️⃣ Optional: automate in Jupyter/SageMaker
+Add this to ~/.bashrc (or a notebook startup cell):
+
+# Auto-load SSH key from Secrets folder
+if [ -f ~/SageMaker/ML-Ops-CreditCard-AWS/Secrets/id_ed25519 ]; then
+    eval "$(ssh-agent -s)"
+    ssh-add ~/SageMaker/ML-Ops-CreditCard-AWS/Secrets/id_ed25519
+fi
+
+
+Building Model Registry:
+
+For model registry, we will need sagemaker version 2.59 or more:
+Upgrade steps:
+!pip install ml-dtypes==0.3.2 onnx==1.14.1
+!pip install --upgrade pip setuptools wheel
+!pip install --upgrade sagemaker
+
+
+Pipelines using AWS Step Functions:
+
+Step Functions: State machines > Step Functions | Step Functions | us-east-1
+
+How to trigger?
+
+	{
+	  "trigger": "manual",
+	  "run_type": "test"
+	}
+	
+	
+Resolved errors and reasons for stepfunctions:
+1. IAM Role Error: 
+Resolution of IAM Role error in stepfunctions (roleerror):
+Attach the following JSON policy to the IAM role: StepFunctions-mlops-creditcard-pipeline-role-nlzj4jhtt.
+2. Open the IAM Console.
+3. Search for the role: StepFunctions-mlops-creditcard-pipeline-role-nlzj4jhtt.
+4. Select Add permissions and then Create inline policy.
+5. Switch to the JSON tab and paste this policy:
+json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowSageMakerTagging",
+            "Effect": "Allow",
+            "Action": [
+                "sagemaker:AddTags"
+            ],
+            "Resource": "arn:aws:sagemaker:us-east-1:075960506214:training-job/*"
+        }
+    ]
+}
+
+
+
+MLFLow Setup:
+
+1. EC2 Instance: Instances | EC2 | us-east-1
+2. Setup ML Flow: 
+
+# Step 1: Allow SSM Access to be able to modify via AWS Cloudshell
+
+ Create or attach a role to your EC2 - Role Name: ec2-mlflow
+You need a role with at least these policies:
+	1. AmazonSSMManagedInstanceCore → so SSM can manage the instance
+	2. AmazonS3FullAccess (or a policy limited to your MLflow bucket) → for artifacts
+Option A: Attach an existing role
+	1. Go to AWS Console → EC2 → Instances → Select your instance → Actions → Security → Modify IAM Role
+	2. Pick a role that already has the policies above
+	3. Save
+
+Option B: Create a new role
+	1. Go to IAM → Roles → Create Role → EC2
+	2. Attach policies:
+		○ AmazonSSMManagedInstanceCore
+		○ AmazonS3FullAccess (or your MLflow bucket policy)
+	3. Name it something like EC2_MLflow_Role
+	4. Go back to EC2 → Modify IAM Role → attach this role
+
+Check if IAM role is successfully assigned: 
+
+aws ec2 describe-instances \
+     --instance-ids i-08d78517733fe6290\
+     --query "Reservations[0].Instances[0].IamInstanceProfile.Arn" \
+     --output text
+
+Output: arn:aws:iam::075960506214:instance-profile/ec2-mlflow
+
+
+# Step 2: Connect to EC2 Instance: 
+aws ssm start-session --target i-08d78517733fe6290
+
+
+SSH or SSM into the instance (doesn’t need public IP):
+
+# Step 3: Update System and Install MLFLow
+# Update system
+sudo yum update -y  # or apt update if Ubuntu
+# Install Python3 + pip
+sudo yum install -y python3 python3-pip
+# (Optional) Install virtualenv
+python3 -m pip install --upgrade pip
+python3 -m pip install virtualenv
+cd ~
+pwd
+virtualenv mlflow_env
+source mlflow_env/bin/activate
+# Install MLflow
+pip install mlflow boto3
+
+Step 3: Create a directory for MLflow artifacts and DB
+
+mkdir -p ~/mlflow
+cd ~/mlflow
+# Backend DB
+touch mlflow.db
+# Optional S3 bucket for artifacts
+# Example: s3://mlflow-artifacts-bucket/
+
+Step 4: Run MLflow server
+Run MLflow listening on all interfaces but private only:
+
+mlflow server \
+  --backend-store-uri sqlite:////home/ssm-user/mlflow/mlflow.db \
+  --default-artifact-root s3://mlflow-artifacts-bucket \
+  --host 0.0.0.0 \
+  --port 5000
+	• --host 0.0.0.0 → EC2 listens on private network
+	• --port 5000 → standard MLflow port
+	• --default-artifact-root → S3 bucket
+Leave this running or run it in tmux / screen / systemd for persistence.
+
+Step 5: Open MLflow UI in your browser using SSM (Use this when u get aws cli)
+On your laptop (with AWS CLI configured for the same account/region):
+
+aws ssm start-session \
+  --target <instance-id> \
+  --document-name AWS-StartPortForwardingSession \
+  --parameters '{"portNumber":["5000"],"localPortNumber":["5000"]}'
+Now, open your browser:
+
+http://localhost:5000
+✅ You can now see MLflow UI without public IP
+
+Check if mlflow is running: 
+ps aux | grep mlflow
+
+Terminate active session: 
+aws ssm terminate-session --session-id <>
+
+Check Active Sessions:
+aws ssm describe-sessions --state Active
+
+Start Session:
+
+aws ssm start-session --target i-08d78517733fe6290
+
+
+Launch MLFlow:
+Activate VENV:
+
+cd ~
+source mlflow_env/bin/activate
+
+Launch MLFLow:
+
+mlflow server \
+  --backend-store-uri sqlite:////home/ssm-user/mlflow/mlflow.db \
+  --default-artifact-root s3://mlflow-artifacts-bucket \
+  --host 0.0.0.0 \
+  --port 5000
+
+On a separate session: 
+
+aws ssm start-session \
+  --target i-08d78517733fe6290 \
+  --document-name AWS-StartPortForwardingSession \
+  --parameters '{"portNumber":["5000"],"localPortNumber":["5000"]}'
+
+
+
+Get MLFlow to Auto Run:
+
+Auto Launch ML Flow
+
+1. Create this file
+sudo tee /usr/local/bin/start-mlflow.sh > /dev/null <<'EOF'
+#!/bin/bash
+set -e
+
+MLFLOW_BIN="/home/ssm-user/mlflow_env/bin/mlflow"
+LOG_FILE="/home/ssm-user/mlflow/mlflow.log"
+
+# Prevent duplicate MLflow instances
+if pgrep -f "mlflow server" > /dev/null; then
+  exit 0
+fi
+
+# Ensure directories exist
+mkdir -p /home/ssm-user/mlflow
+touch /home/ssm-user/mlflow/mlflow.db
+
+# Start MLflow
+nohup "$MLFLOW_BIN" server \
+  --backend-store-uri sqlite:////home/ssm-user/mlflow/mlflow.db \
+  --default-artifact-root s3://mlflow-artifacts-bucket \
+  --host 0.0.0.0 \
+  --port 5000 \
+  >> "$LOG_FILE" 2>&1 &
+EOF
+
+2. Make it executable
+sudo chmod +x /usr/local/bin/start-mlflow.sh
+
+3. Test manually (VERY IMPORTANT)
+sudo /usr/local/bin/start-mlflow.sh
+
+Check: ps aux | grep mlflow
+
+4. Install Cron Utilities:
+sudo dnf install cronie -y
+
+5. Start and Enable Crone:
+sudo systemctl enable crond
+sudo systemctl start crond
+
+6. Check cron's running status: systemctl status crond
+7. Enable boot start: sudo systemctl enable crond
+8. Edit Root: sudo crontab -e
+9. @reboot /usr/local/bin/start-mlflow.sh
+10. sudo crontab -l : To check if crontab was successfully installed
+
+---
+Setup of Step 2: Model Registry on AWS StepFunctions
+
+1. Ensure EC2 has SSM Access: AmazonSSMManagedInstanceCore IAM role
+2. Check if ssm agent is running
+	1. Enter SSM Agent Setup in AWS CloudShell: aws ssm start-session --target i-08d78517733fe6290
+	2. Check SSM Agent is running or not: sudo systemctl status amazon-ssm-agent
+	
