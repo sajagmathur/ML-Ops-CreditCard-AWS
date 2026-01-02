@@ -49,7 +49,7 @@
   "Parameters": {
     "DocumentName": "AWS-RunShellScript",
     "InstanceIds": [
-      "i-0abc123456789mlflow"
+      "i-08d78517733fe6290"
     ],
     "Parameters": {
       "commands": [
