@@ -8,4 +8,4 @@ Building Credit Card Fraud Model Using Amazon Web Services
 5. Training Pipeline: AWS StepFunctions + Sagemaker Jobs + Github Actions
 
 
-Code Push Trial
+Code Push Trial v1
