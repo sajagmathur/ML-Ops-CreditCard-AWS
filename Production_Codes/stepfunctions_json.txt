@@ -42,14 +42,13 @@
       },
       "Next": "SubmitRegisterModelCommand"
     },
+
     "SubmitRegisterModelCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": [
-          "i-08d78517733fe6290"
-        ],
+        "InstanceIds": ["i-08d78517733fe6290"],
         "CloudWatchOutputConfig": {
           "CloudWatchLogGroupName": "/aws/ssm/register-model",
           "CloudWatchOutputEnabled": true
@@ -58,13 +57,9 @@
           "commands": [
             "set -e",
             "source /home/ssm-user/mlflow_env/bin/activate",
-            "pip install --no-cache-dir --force-reinstall numpy==1.23.5 scikit-learn==1.2.1 scipy==1.10.1",
-            "mkdir -p /home/ssm-user/mlflow",
             "cd /home/ssm-user/mlflow",
-            "aws s3 cp s3://mlops-creditcard/prod_codes/source_dir.tar.gz .",
-            "tar -xzf source_dir.tar.gz",
-            "ls -l",
             "export MODEL_TAR_S3_URI=s3://mlops-creditcard/prod_outputs/trained_model/",
+            "export MLFLOW_TRACKING_URI=sqlite:////home/ssm-user/mlflow/mlflow.db",
             "python register_model.py"
           ]
         }
@@ -75,11 +70,13 @@
       },
       "Next": "WaitForRegisterModel"
     },
+
     "WaitForRegisterModel": {
       "Type": "Wait",
       "Seconds": 60,
       "Next": "CheckRegisterModelStatus"
     },
+
     "CheckRegisterModelStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
@@ -87,9 +84,10 @@
         "CommandId.$": "$.CommandId",
         "InstanceId.$": "$.InstanceId"
       },
-      "Next": "CheckStatusChoice"
+      "Next": "CheckRegisterModelChoice"
     },
-    "CheckStatusChoice": {
+
+    "CheckRegisterModelChoice": {
       "Type": "Choice",
       "Choices": [
         {
@@ -100,22 +98,82 @@
         {
           "Variable": "$.Status",
           "StringEquals": "Success",
-          "Next": "SelectChampion"
+          "Next": "SubmitSelectChampionCommand"
         }
       ],
       "Default": "FailRegisterModel"
     },
+
     "FailRegisterModel": {
       "Type": "Fail",
       "Cause": "Register model failed"
     },
-    "SelectChampion": {
-      "Type": "Pass",
-      "Result": {
-        "status": "champion selected"
+
+    "SubmitSelectChampionCommand": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
+      "Parameters": {
+        "DocumentName": "AWS-RunShellScript",
+        "InstanceIds": ["i-08d78517733fe6290"],
+        "CloudWatchOutputConfig": {
+          "CloudWatchLogGroupName": "/aws/ssm/select-champion",
+          "CloudWatchOutputEnabled": true
+        },
+        "Parameters": {
+          "commands": [
+            "set -e",
+            "source /home/ssm-user/mlflow_env/bin/activate",
+            "cd /home/ssm-user/mlflow",
+            "export MLFLOW_TRACKING_URI=sqlite:////home/ssm-user/mlflow/mlflow.db",
+            "python select_champion.py"
+          ]
+        }
       },
-      "Next": "BatchInference"
+      "ResultSelector": {
+        "CommandId.$": "$.Command.CommandId",
+        "InstanceId.$": "$.Command.InstanceIds[0]"
+      },
+      "Next": "WaitForSelectChampion"
     },
+
+    "WaitForSelectChampion": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "CheckSelectChampionStatus"
+    },
+
+    "CheckSelectChampionStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
+      "Parameters": {
+        "CommandId.$": "$.CommandId",
+        "InstanceId.$": "$.InstanceId"
+      },
+      "Next": "CheckSelectChampionChoice"
+    },
+
+    "CheckSelectChampionChoice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.Status",
+          "StringEquals": "InProgress",
+          "Next": "WaitForSelectChampion"
+        },
+        {
+          "Variable": "$.Status",
+          "StringEquals": "Success",
+          "Next": "BatchInference"
+        }
+      ],
+      "Default": "FailSelectChampion"
+    },
+
+    "FailSelectChampion": {
+      "Type": "Fail",
+      "Cause": "Champion selection failed"
+    },
+
     "BatchInference": {
       "Type": "Pass",
       "Result": {
