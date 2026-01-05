@@ -25,7 +25,7 @@
           }
         ],
         "OutputDataConfig": {
-          "S3OutputPath": "s3://mlops-creditcard/prod_outputs/artifacts/trained_model/"
+          "S3OutputPath": "s3://mlops-creditcard/prod_outputs/trained_model/"
         },
         "ResourceConfig": {
           "InstanceType": "ml.m5.large",
@@ -40,28 +40,74 @@
           "sagemaker_submit_directory": "s3://mlops-creditcard/prod_codes/source_dir.tar.gz"
         }
       },
-      "Next": "RegisterModel"
+      "Next": "SubmitRegisterModelCommand"
     },
-    "RegisterModel": {
+    "SubmitRegisterModelCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
-      "TimeoutSeconds": 900,
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
         "InstanceIds": [
           "i-08d78517733fe6290"
         ],
+        "CloudWatchOutputConfig": {
+          "CloudWatchLogGroupName": "/aws/ssm/register-model",
+          "CloudWatchOutputEnabled": true
+        },
         "Parameters": {
           "commands": [
             "set -e",
+            "source /home/ssm-user/mlflow_env/bin/activate",
+            "pip install --no-cache-dir --force-reinstall numpy==1.23.5 scikit-learn==1.2.1 scipy==1.10.1",
+            "mkdir -p /home/ssm-user/mlflow",
             "cd /home/ssm-user/mlflow",
-            "source venv/bin/activate || true",
-            "export MODEL_TAR_S3_URI=s3://mlops-creditcard/prod_outputs/artifacts/trained_model/",
+            "aws s3 cp s3://mlops-creditcard/prod_codes/source_dir.tar.gz .",
+            "tar -xzf source_dir.tar.gz",
+            "ls -l",
+            "export MODEL_TAR_S3_URI=s3://mlops-creditcard/prod_outputs/trained_model/",
             "python register_model.py"
           ]
         }
       },
-      "Next": "SelectChampion"
+      "ResultSelector": {
+        "CommandId.$": "$.Command.CommandId",
+        "InstanceId.$": "$.Command.InstanceIds[0]"
+      },
+      "Next": "WaitForRegisterModel"
+    },
+    "WaitForRegisterModel": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "CheckRegisterModelStatus"
+    },
+    "CheckRegisterModelStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
+      "Parameters": {
+        "CommandId.$": "$.CommandId",
+        "InstanceId.$": "$.InstanceId"
+      },
+      "Next": "CheckStatusChoice"
+    },
+    "CheckStatusChoice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.Status",
+          "StringEquals": "InProgress",
+          "Next": "WaitForRegisterModel"
+        },
+        {
+          "Variable": "$.Status",
+          "StringEquals": "Success",
+          "Next": "SelectChampion"
+        }
+      ],
+      "Default": "FailRegisterModel"
+    },
+    "FailRegisterModel": {
+      "Type": "Fail",
+      "Cause": "Register model failed"
     },
     "SelectChampion": {
       "Type": "Pass",
@@ -79,48 +125,3 @@
     }
   }
 }
-
-
-Notes: Setup of Step 2: Model Registry on AWS StepFunctions
-
-1. Ensure EC2 has SSM Access: AmazonSSMManagedInstanceCore IAM role
-2. Check if ssm agent is running
-	1. Enter SSM Agent Setup in AWS CloudShell: aws ssm start-session --target i-08d78517733fe6290
-	2. Check SSM Agent is running or not: sudo systemctl status amazon-ssm-agent
-
-Errors Corrected:
-1. IAM Permission Issue: 
-Option A (recommended first): Attach an inline policy
-This avoids affecting other services.
-	1. On the role page, click Add permissions
-	2. Choose Create inline policy
-	3. Click the JSON tab
-	4. Delete everything in the editor
-	5. Paste this policy:
-
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "AllowSSMSendCommand",
-      "Effect": "Allow",
-      "Action": [
-        "ssm:SendCommand",
-        "ssm:GetCommandInvocation",
-        "ssm:ListCommands",
-        "ssm:ListCommandInvocations"
-      ],
-      "Resource": [
-        "arn:aws:ec2:us-east-1:075960506214:instance/i-08d78517733fe6290",
-        "arn:aws:ssm:us-east-1:075960506214:document/*"
-      ]
-    }
-  ]
-}
-	1. Click Next
-	2. Policy name:
-
-StepFunctions-SSM-SendCommand
-	3. Click Create policy
-✅ Permissions are now attached
-
