@@ -1,188 +1,175 @@
 """
-Champion selection script converted from notebook.
-This selects a challenger model from MLflow registry and promotes it to champion
-if it outperforms the current champion on a majority of configured metrics.
+Champion selection script (EC2 MLflow).
+
+- Compares challenger vs champion using MLflow metrics
+- Promotes challenger if it wins majority of metrics
+- Saves ONLY the champion model.pkl to S3:
+  s3://mlops-creditcard/prod_outputs/champion_model/model.pkl
 """
 
 import os
-from pathlib import Path
+import pickle
+import tempfile
+import boto3
 import mlflow
 from mlflow.tracking import MlflowClient
 
-# Determine MLflow tracking URI (env override -> SageMaker default -> local sqlite)
-tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
-if not tracking_uri:
-    sage_db = Path("/home/ec2-user/SageMaker/ML-Ops-CreditCard-AWS/mlflow.db")
-    if sage_db.exists():
-        tracking_uri = f"sqlite:///{sage_db}"
-    else:
-        local_db = Path.cwd() / "mlflow.db"
-        if local_db.exists():
-            tracking_uri = f"sqlite:///{local_db}"
-        else:
-            # Fallback: create local sqlite file and use it (this avoids needing a running mlflow server)
-            db_path = local_db
-            tracking_uri = f"sqlite:///{db_path}"
-            print("⚠️ No existing MLflow DB found. Using local sqlite at", db_path)
-            print("If you intended to use a remote MLflow server, set the MLFLOW_TRACKING_URI environment variable or start an MLflow server.")
-
-mlflow.set_tracking_uri(tracking_uri)
-mlflow.set_registry_uri(mlflow.get_tracking_uri())
-
-client = MlflowClient()
-
-print("MLflow tracking URI:", mlflow.get_tracking_uri())
-
+# -----------------------------
 # Configuration
-MODEL_NAME = "creditcard-fraud-model"  # must match name used in registration
+# -----------------------------
+MLFLOW_TRACKING_URI = "sqlite:////home/ssm-user/mlflow/mlflow.db"
+MODEL_NAME = "creditcard-fraud-model"
+
+S3_BUCKET = "mlops-creditcard"
+S3_PREFIX = "prod_outputs/champion_model"
 
 METRICS_TO_COMPARE = [
-    "Accuracy",
-    "Precision",
-    "Recall",
-    "F1 Score",
+    "accuracy",
+    "precision",
+    "recall",
+    "f1_score",
 ]
 
+# -----------------------------
+# MLflow setup
+# -----------------------------
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+mlflow.set_registry_uri(mlflow.get_tracking_uri())
+client = MlflowClient()
 
-# Utility Functions (Registry & Metrics)
-def get_model_version_by_tag(client, model_name, tag_key, tag_value):
-    """Return the MLflow Model Version object that matches a tag value, or None."""
-    versions = client.search_model_versions(f"name='{model_name}'")
-    for v in versions:
-        try:
-            mv = client.get_model_version(name=model_name, version=v.version)
-            tags = mv.tags or {}
-            if tags.get(tag_key) == tag_value:
-                return mv
-        except Exception:
-            # ignore and continue
-            continue
-    return None
+s3 = boto3.client("s3")
 
+print("✅ MLflow tracking URI:", mlflow.get_tracking_uri())
 
-def get_model_version_metrics(client, model_name, version):
-    mv = client.get_model_version(name=model_name, version=version)
-    run = client.get_run(mv.run_id)
-    return run.data.metrics
-
-
-# Deterministic challenger selection (highest-version)
-def get_all_model_versions_by_tag(client, model_name, tag_key, tag_value):
-    """Return a list of ModelVersion objects that match a tag."""
-    versions = client.search_model_versions(f"name='{model_name}'")
+# -----------------------------
+# Helper functions
+# -----------------------------
+def get_versions_by_tag(tag_key, tag_value):
+    versions = client.search_model_versions(f"name='{MODEL_NAME}'")
     result = []
     for v in versions:
-        try:
-            mv = client.get_model_version(name=model_name, version=v.version)
-            if (mv.tags or {}).get(tag_key) == tag_value:
-                result.append(mv)
-        except Exception:
-            continue
+        mv = client.get_model_version(MODEL_NAME, v.version)
+        if (mv.tags or {}).get(tag_key) == tag_value:
+            result.append(mv)
     return result
 
 
-def choose_challenger_by_highest_version(client, model_name):
-    """Choose the challenger with the highest numeric version.
-
-    Falls back to lexical comparison if versions are not strictly numeric.
-    """
-    challengers = get_all_model_versions_by_tag(client, model_name, 'role', 'challenger')
+def get_latest_challenger():
+    challengers = get_versions_by_tag("role", "challenger")
     if not challengers:
         return None
-
-    def ver_key(mv):
-        try:
-            return int(mv.version)
-        except Exception:
-            return mv.version  # lexical fallback
-
-    best = max(challengers, key=ver_key)
-    return best
+    return max(challengers, key=lambda x: int(x.version))
 
 
-# Metric Comparison Logic
-def better_than(challenger_metrics, champion_metrics):
-    """Return True if challenger beats champion on a strict majority of compared metrics.
-    Only metrics present in both runs are considered; ties do not count for challenger.
-    """
-    challenger_wins = 0
-    total_considered = 0
+def get_champion():
+    champs = get_versions_by_tag("role", "champion")
+    return champs[0] if champs else None
 
-    for metric in METRICS_TO_COMPARE:
-        c_val = challenger_metrics.get(metric)
-        champ_val = champion_metrics.get(metric)
 
-        if c_val is None or champ_val is None:
-            # missing metric in one of the runs: skip
+def get_metrics(model_version):
+    run = client.get_run(model_version.run_id)
+    return run.data.metrics
+
+
+def challenger_wins(challenger_metrics, champion_metrics):
+    wins = 0
+    total = 0
+
+    for m in METRICS_TO_COMPARE:
+        c = challenger_metrics.get(m)
+        ch = champion_metrics.get(m)
+
+        if c is None or ch is None:
             continue
 
-        total_considered += 1
-        if c_val > champ_val:
-            challenger_wins += 1
+        total += 1
+        if c > ch:
+            wins += 1
 
-    if total_considered == 0:
-        # no comparable metrics; do not promote
+    if total == 0:
         return False
 
-    return challenger_wins > (total_considered / 2)
+    return wins > (total / 2)
 
 
+def export_champion_model_to_s3(model_version):
+    """
+    Loads champion model from MLflow and saves ONLY model.pkl to S3
+    """
+    print("📦 Exporting champion model to S3")
+
+    model_uri = f"models:/{MODEL_NAME}/{model_version.version}"
+
+    model = mlflow.sklearn.load_model(model_uri)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        local_path = os.path.join(tmp, "model.pkl")
+
+        with open(local_path, "wb") as f:
+            pickle.dump(model, f)
+
+        s3_key = f"{S3_PREFIX}/model.pkl"
+        s3.upload_file(local_path, S3_BUCKET, s3_key)
+
+    print(f"✅ Champion model saved to s3://{S3_BUCKET}/{s3_key}")
+
+# -----------------------------
 # Champion Selection Logic
-def select_champion():
-    print("🚀 Starting AWS MLflow Champion Selection")
+# -----------------------------
+def main():
+    print("🚀 Starting Champion Selection")
 
-    # Choose challenger deterministically by highest version number
-    challenger = choose_challenger_by_highest_version(client, MODEL_NAME)
+    challenger = get_latest_challenger()
     if not challenger:
-        print("❌ No challenger model found")
+        print("❌ No challenger found")
         return
 
-    print(f"ℹ️ Challenger found → version {challenger.version}")
+    champion = get_champion()
+    challenger_metrics = get_metrics(challenger)
 
-    champion = get_model_version_by_tag(client, MODEL_NAME, "role", "champion")
-
+    # -------------------------
     # No champion exists
+    # -------------------------
     if not champion:
-        print("⚠️ No champion found — promoting challenger directly")
+        print("⚠️ No champion exists — promoting challenger")
 
         client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
         client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
 
-        print(f"✅ Challenger v{challenger.version} promoted to Champion")
+        export_champion_model_to_s3(challenger)
         return
 
-    print(f"ℹ️ Champion found → version {champion.version}")
+    champion_metrics = get_metrics(champion)
 
-    challenger_metrics = get_model_version_metrics(client, MODEL_NAME, challenger.version)
-    champion_metrics = get_model_version_metrics(client, MODEL_NAME, champion.version)
-
-    print("\n📊 Metrics Comparison")
-    print(f"{'Metric':<25}{'Challenger':<15}{'Champion':<15}")
-    print("-" * 55)
-
-    for metric in METRICS_TO_COMPARE:
+    print("\n📊 Metric Comparison")
+    for m in METRICS_TO_COMPARE:
         print(
-            f"{metric:<25}"
-            f"{str(challenger_metrics.get(metric, 'N/A')):<15}"
-            f"{str(champion_metrics.get(metric, 'N/A')):<15}"
+            f"{m:<12} | "
+            f"challenger={challenger_metrics.get(m)} | "
+            f"champion={champion_metrics.get(m)}"
         )
 
-    if better_than(challenger_metrics, champion_metrics):
-        print("\n🚀 Challenger outperforms Champion → Promoting")
+    # -------------------------
+    # Compare & Promote
+    # -------------------------
+    if challenger_wins(challenger_metrics, champion_metrics):
+        print("\n🏆 Challenger wins — promoting")
 
-        # Archive old champion
         client.set_model_version_tag(MODEL_NAME, champion.version, "role", "archived")
         client.set_model_version_tag(MODEL_NAME, champion.version, "status", "archived")
 
-        # Promote challenger
         client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
         client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
+
+        export_champion_model_to_s3(challenger)
 
         print(f"✅ Challenger v{challenger.version} is now Champion")
 
     else:
-        print("\n⚠️ Challenger did NOT outperform Champion — no change")
+        print("\n⚠️ Challenger did not outperform champion — no change")
 
-
+# -----------------------------
+# Entry point
+# -----------------------------
 if __name__ == "__main__":
-    select_champion()
+    main()
