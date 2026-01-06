@@ -3,15 +3,14 @@ Champion selection script (EC2 MLflow).
 
 - Compares challenger vs champion using MLflow metrics
 - Promotes challenger if it wins majority of metrics
-- ALWAYS saves the active champion model.pkl to S3:
-  s3://mlops-creditcard/prod_outputs/champion_model/model.pkl
-- Detailed logs for CloudWatch
+- ONLY IF PROMOTED:
+    Uploads champion_model.pkl to:
+    s3://mlops-creditcard/prod_outputs/champion_model/champion_model.pkl
 """
 
 import os
-import pickle
 import tempfile
-import traceback
+import shutil
 import boto3
 import mlflow
 from mlflow.tracking import MlflowClient
@@ -23,7 +22,7 @@ MLFLOW_TRACKING_URI = "sqlite:////home/ssm-user/mlflow/mlflow.db"
 MODEL_NAME = "creditcard-fraud-model"
 
 S3_BUCKET = "mlops-creditcard"
-S3_PREFIX = "prod_outputs/champion_model"
+S3_KEY = "prod_outputs/champion_model/champion_model.pkl"
 
 METRICS_TO_COMPARE = [
     "accuracy",
@@ -37,6 +36,7 @@ METRICS_TO_COMPARE = [
 # -----------------------------
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 mlflow.set_registry_uri(mlflow.get_tracking_uri())
+
 client = MlflowClient()
 s3 = boto3.client("s3")
 
@@ -57,9 +57,7 @@ def get_versions_by_tag(tag_key, tag_value):
 
 def get_latest_challenger():
     challengers = get_versions_by_tag("role", "challenger")
-    if not challengers:
-        return None
-    return max(challengers, key=lambda x: int(x.version))
+    return max(challengers, key=lambda x: int(x.version)) if challengers else None
 
 
 def get_champion():
@@ -85,11 +83,33 @@ def challenger_wins(challenger_metrics, champion_metrics):
         if c > ch:
             wins += 1
 
-    if total == 0:
-        return False
+    return total > 0 and wins > (total / 2)
 
-    return wins > (total / 2)
 
+def upload_champion_model(model_version):
+    """
+    Downloads champion model from MLflow and uploads model.pkl to S3
+    """
+    print("⬇️ Downloading champion model from MLflow")
+
+    tmp_dir = tempfile.mkdtemp()
+    try:
+        local_path = mlflow.artifacts.download_artifacts(
+            artifact_uri=f"models:/{MODEL_NAME}/{model_version.version}",
+            dst_path=tmp_dir,
+        )
+
+        model_pkl = os.path.join(local_path, "model.pkl")
+        if not os.path.exists(model_pkl):
+            raise FileNotFoundError("model.pkl not found in MLflow artifact")
+
+        print(f"⬆️ Uploading champion model to s3://{S3_BUCKET}/{S3_KEY}")
+        s3.upload_file(model_pkl, S3_BUCKET, S3_KEY)
+
+        print("✅ Champion model uploaded to S3")
+
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
 # -----------------------------
@@ -100,28 +120,23 @@ def main():
 
     challenger = get_latest_challenger()
     champion = get_champion()
+    promoted = False
 
-    # -------------------------
-    # No models at all
-    # -------------------------
     if not challenger and not champion:
-        print("❌ No models found in registry. Exiting.")
+        print("❌ No models found in registry")
         return
 
-    # -------------------------
-    # No champion exists → promote challenger
-    # -------------------------
+    # No champion → auto promote challenger
     if not champion and challenger:
         print("⚠️ No champion exists — promoting challenger")
 
         client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
         client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
 
-        champion = challenger  # now the active champion
+        champion = challenger
+        promoted = True
 
-    # -------------------------
-    # Champion exists → compare with challenger
-    # -------------------------
+    # Champion exists → compare
     elif champion and challenger:
         challenger_metrics = get_metrics(challenger)
         champion_metrics = get_metrics(champion)
@@ -137,21 +152,27 @@ def main():
         if challenger_wins(challenger_metrics, champion_metrics):
             print("\n🏆 Challenger wins — promoting")
 
-            # Archive old champion
             client.set_model_version_tag(MODEL_NAME, champion.version, "role", "archived")
             client.set_model_version_tag(MODEL_NAME, champion.version, "status", "archived")
 
-            # Promote challenger
             client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
             client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
 
             champion = challenger
+            promoted = True
         else:
-            print("\n⚠️ Challenger did not outperform champion — keeping current champion")
+            print("\n⚠️ Challenger did not outperform champion — no promotion")
 
-    
+    # -------------------------
+    # Upload only if promoted
+    # -------------------------
+    if promoted:
+        upload_champion_model(champion)
+    else:
+        print("ℹ️ No new champion — S3 model not updated")
 
     print("✅ Champion selection completed")
+
 
 # -----------------------------
 # Entry point
