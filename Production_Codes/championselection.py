@@ -88,20 +88,22 @@ def challenger_wins(challenger_metrics, champion_metrics):
 
 def upload_champion_model(model_version):
     """
-    Downloads champion model from MLflow and uploads model.pkl to S3
+    Downloads champion model from MLflow run artifacts
+    and uploads model.pkl to S3
     """
-    print("⬇️ Downloading champion model from MLflow")
+    print("⬇️ Downloading champion model from MLflow run artifacts")
 
     tmp_dir = tempfile.mkdtemp()
     try:
-        local_path = mlflow.artifacts.download_artifacts(
-            artifact_uri=f"models:/{MODEL_NAME}/{model_version.version}",
+        # Download ONLY the logged model artifact
+        local_model_dir = mlflow.artifacts.download_artifacts(
+            artifact_uri=f"runs:/{model_version.run_id}/model",
             dst_path=tmp_dir,
         )
 
-        model_pkl = os.path.join(local_path, "model.pkl")
+        model_pkl = os.path.join(local_model_dir, "model.pkl")
         if not os.path.exists(model_pkl):
-            raise FileNotFoundError("model.pkl not found in MLflow artifact")
+            raise FileNotFoundError(f"model.pkl not found at {model_pkl}")
 
         print(f"⬆️ Uploading champion model to s3://{S3_BUCKET}/{S3_KEY}")
         s3.upload_file(model_pkl, S3_BUCKET, S3_KEY)
