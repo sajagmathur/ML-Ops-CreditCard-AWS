@@ -42,14 +42,13 @@
       },
       "Next": "SubmitRegisterModelCommand"
     },
+
     "SubmitRegisterModelCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": [
-          "i-08d78517733fe6290"
-        ],
+        "InstanceIds": ["i-08d78517733fe6290"],
         "CloudWatchOutputConfig": {
           "CloudWatchLogGroupName": "/aws/ssm/register-model",
           "CloudWatchOutputEnabled": true
@@ -58,7 +57,12 @@
           "commands": [
             "set -e",
             "source /home/ssm-user/mlflow_env/bin/activate",
-            "cd /home/ssm-user/mlflow",
+            "cd /home/ssm-user",
+            "rm -rf mlops_run",
+            "mkdir mlops_run",
+            "aws s3 cp s3://mlops-creditcard/prod_codes/source_dir.tar.gz mlops_run/source_dir.tar.gz",
+            "tar -xzf mlops_run/source_dir.tar.gz -C mlops_run",
+            "cd mlops_run",
             "export MODEL_TAR_S3_URI=s3://mlops-creditcard/prod_outputs/trained_model/",
             "export MLFLOW_TRACKING_URI=sqlite:////home/ssm-user/mlflow/mlflow.db",
             "python register_model.py"
@@ -71,11 +75,13 @@
       },
       "Next": "WaitForRegisterModel"
     },
+
     "WaitForRegisterModel": {
       "Type": "Wait",
       "Seconds": 90,
       "Next": "CheckRegisterModelStatus"
     },
+
     "CheckRegisterModelStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
@@ -85,6 +91,7 @@
       },
       "Next": "CheckRegisterModelChoice"
     },
+
     "CheckRegisterModelChoice": {
       "Type": "Choice",
       "Choices": [
@@ -101,18 +108,18 @@
       ],
       "Default": "FailRegisterModel"
     },
+
     "FailRegisterModel": {
       "Type": "Fail",
       "Cause": "Register model failed"
     },
+
     "SubmitSelectChampionCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": [
-          "i-08d78517733fe6290"
-        ],
+        "InstanceIds": ["i-08d78517733fe6290"],
         "CloudWatchOutputConfig": {
           "CloudWatchLogGroupName": "/aws/ssm/select-champion",
           "CloudWatchOutputEnabled": true
@@ -121,7 +128,12 @@
           "commands": [
             "set -e",
             "source /home/ssm-user/mlflow_env/bin/activate",
-            "cd /home/ssm-user/mlflow",
+            "cd /home/ssm-user",
+            "rm -rf mlops_run",
+            "mkdir mlops_run",
+            "aws s3 cp s3://mlops-creditcard/prod_codes/source_dir.tar.gz mlops_run/source_dir.tar.gz",
+            "tar -xzf mlops_run/source_dir.tar.gz -C mlops_run",
+            "cd mlops_run",
             "export MLFLOW_TRACKING_URI=sqlite:////home/ssm-user/mlflow/mlflow.db",
             "python championselection.py"
           ]
@@ -133,11 +145,13 @@
       },
       "Next": "WaitForSelectChampion"
     },
+
     "WaitForSelectChampion": {
       "Type": "Wait",
       "Seconds": 90,
       "Next": "CheckSelectChampionStatus"
     },
+
     "CheckSelectChampionStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
@@ -147,6 +161,7 @@
       },
       "Next": "CheckSelectChampionChoice"
     },
+
     "CheckSelectChampionChoice": {
       "Type": "Choice",
       "Choices": [
@@ -163,10 +178,12 @@
       ],
       "Default": "FailSelectChampion"
     },
+
     "FailSelectChampion": {
       "Type": "Fail",
       "Cause": "Champion selection failed"
     },
+
     "BatchInference": {
       "Type": "Pass",
       "Result": {
