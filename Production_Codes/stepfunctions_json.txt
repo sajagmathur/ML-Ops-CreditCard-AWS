@@ -42,13 +42,14 @@
       },
       "Next": "SubmitRegisterModelCommand"
     },
-
     "SubmitRegisterModelCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": ["i-08d78517733fe6290"],
+        "InstanceIds": [
+          "i-08d78517733fe6290"
+        ],
         "CloudWatchOutputConfig": {
           "CloudWatchLogGroupName": "/aws/ssm/register-model",
           "CloudWatchOutputEnabled": true
@@ -70,13 +71,11 @@
       },
       "Next": "WaitForRegisterModel"
     },
-
     "WaitForRegisterModel": {
       "Type": "Wait",
-      "Seconds": 60,
+      "Seconds": 90,
       "Next": "CheckRegisterModelStatus"
     },
-
     "CheckRegisterModelStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
@@ -86,7 +85,6 @@
       },
       "Next": "CheckRegisterModelChoice"
     },
-
     "CheckRegisterModelChoice": {
       "Type": "Choice",
       "Choices": [
@@ -103,18 +101,18 @@
       ],
       "Default": "FailRegisterModel"
     },
-
     "FailRegisterModel": {
       "Type": "Fail",
       "Cause": "Register model failed"
     },
-
     "SubmitSelectChampionCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": ["i-08d78517733fe6290"],
+        "InstanceIds": [
+          "i-08d78517733fe6290"
+        ],
         "CloudWatchOutputConfig": {
           "CloudWatchLogGroupName": "/aws/ssm/select-champion",
           "CloudWatchOutputEnabled": true
@@ -125,7 +123,7 @@
             "source /home/ssm-user/mlflow_env/bin/activate",
             "cd /home/ssm-user/mlflow",
             "export MLFLOW_TRACKING_URI=sqlite:////home/ssm-user/mlflow/mlflow.db",
-            "python select_champion.py"
+            "python championselection.py"
           ]
         }
       },
@@ -135,13 +133,11 @@
       },
       "Next": "WaitForSelectChampion"
     },
-
     "WaitForSelectChampion": {
       "Type": "Wait",
-      "Seconds": 30,
+      "Seconds": 90,
       "Next": "CheckSelectChampionStatus"
     },
-
     "CheckSelectChampionStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
@@ -151,7 +147,6 @@
       },
       "Next": "CheckSelectChampionChoice"
     },
-
     "CheckSelectChampionChoice": {
       "Type": "Choice",
       "Choices": [
@@ -168,12 +163,10 @@
       ],
       "Default": "FailSelectChampion"
     },
-
     "FailSelectChampion": {
       "Type": "Fail",
       "Cause": "Champion selection failed"
     },
-
     "BatchInference": {
       "Type": "Pass",
       "Result": {
