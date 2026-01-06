@@ -88,22 +88,27 @@ def challenger_wins(challenger_metrics, champion_metrics):
 
 def upload_champion_model(model_version):
     """
-    Downloads champion model from MLflow run artifacts
+    Downloads champion model artifacts from MLflow (layout-agnostic)
     and uploads model.pkl to S3
     """
-    print("⬇️ Downloading champion model from MLflow run artifacts")
+    print("⬇️ Downloading champion artifacts from MLflow")
 
     tmp_dir = tempfile.mkdtemp()
     try:
-        # Download ONLY the logged model artifact
-        local_model_dir = mlflow.artifacts.download_artifacts(
-            artifact_uri=f"runs:/{model_version.run_id}/model",
+        # Download ENTIRE run artifacts (safe & deterministic)
+        mlflow.artifacts.download_artifacts(
+            artifact_uri=f"runs:/{model_version.run_id}",
             dst_path=tmp_dir,
         )
 
-        model_pkl = os.path.join(local_model_dir, "model.pkl")
-        if not os.path.exists(model_pkl):
-            raise FileNotFoundError(f"model.pkl not found at {model_pkl}")
+        model_pkl = None
+        for root, _, files in os.walk(tmp_dir):
+            if "model.pkl" in files:
+                model_pkl = os.path.join(root, "model.pkl")
+                break
+
+        if not model_pkl:
+            raise FileNotFoundError("❌ model.pkl not found in MLflow artifacts")
 
         print(f"⬆️ Uploading champion model to s3://{S3_BUCKET}/{S3_KEY}")
         s3.upload_file(model_pkl, S3_BUCKET, S3_KEY)
@@ -128,7 +133,9 @@ def main():
         print("❌ No models found in registry")
         return
 
-    # No champion → auto promote challenger
+    # -------------------------
+    # No champion → promote challenger
+    # -------------------------
     if not champion and challenger:
         print("⚠️ No champion exists — promoting challenger")
 
@@ -138,7 +145,9 @@ def main():
         champion = challenger
         promoted = True
 
+    # -------------------------
     # Champion exists → compare
+    # -------------------------
     elif champion and challenger:
         challenger_metrics = get_metrics(challenger)
         champion_metrics = get_metrics(champion)
@@ -166,8 +175,10 @@ def main():
             print("\n⚠️ Challenger did not outperform champion — no promotion")
 
     # -------------------------
-    # Upload only if promoted
+    # Upload champion ONLY if promoted
     # -------------------------
+    print(f"DEBUG → promoted={promoted}, champion_version={champion.version if champion else None}")
+
     if promoted:
         upload_champion_model(champion)
     else:
