@@ -135,7 +135,9 @@ def main():
         client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
         champion = challenger
         promoted = True
-
+        print("Copying Model to S3")
+        copy_model_to_champion_s3()
+        print("Latest Champion Model Copied to S3")
     # Champion exists → compare metrics
     elif champion and challenger:
         challenger_metrics = get_metrics(challenger)
@@ -153,19 +155,16 @@ def main():
             client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
             champion = challenger
             promoted = True
+            print("Copying Model to S3")
+            copy_model_to_champion_s3()
+            print("Latest Champion Model Copied to S3")
         else:
             print("\n⚠️ Challenger did not outperform champion — no promotion")
+            print("ℹ️ No new champion — S3 model not updated")
 
     print(f"DEBUG → promoted={promoted}, champion_version={champion.version if champion else None}")
 
-    # -------------------------
-    # Copy latest model.pkl from S3 only if promoted
-    # -------------------------
-    if promoted:
-        copy_model_to_champion_s3()
-    else:
-        print("ℹ️ No new champion — S3 model not updated")
-
+   
     print("✅ Champion selection completed")
 
 
