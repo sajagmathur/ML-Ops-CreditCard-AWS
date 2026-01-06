@@ -5,11 +5,13 @@ Champion selection script (EC2 MLflow).
 - Promotes challenger if it wins majority of metrics
 - ALWAYS saves the active champion model.pkl to S3:
   s3://mlops-creditcard/prod_outputs/champion_model/model.pkl
+- Detailed logs for CloudWatch
 """
 
 import os
 import pickle
 import tempfile
+import traceback
 import boto3
 import mlflow
 from mlflow.tracking import MlflowClient
@@ -36,7 +38,6 @@ METRICS_TO_COMPARE = [
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 mlflow.set_registry_uri(mlflow.get_tracking_uri())
 client = MlflowClient()
-
 s3 = boto3.client("s3")
 
 print("✅ MLflow tracking URI:", mlflow.get_tracking_uri())
@@ -78,10 +79,8 @@ def challenger_wins(challenger_metrics, champion_metrics):
     for m in METRICS_TO_COMPARE:
         c = challenger_metrics.get(m)
         ch = champion_metrics.get(m)
-
         if c is None or ch is None:
             continue
-
         total += 1
         if c > ch:
             wins += 1
@@ -96,21 +95,27 @@ def save_model_to_s3(model_version):
     """
     Loads model from MLflow and saves model.pkl to S3
     """
-    print(f"📦 Saving model version {model_version.version} to S3")
+    try:
+        print(f"📦 Saving model version {model_version.version} to S3")
 
-    model_uri = f"models:/{MODEL_NAME}/{model_version.version}"
-    model = mlflow.sklearn.load_model(model_uri)
+        model_uri = f"models:/{MODEL_NAME}/{model_version.version}"
+        model = mlflow.sklearn.load_model(model_uri)
 
-    with tempfile.TemporaryDirectory() as tmp:
-        local_path = os.path.join(tmp, "model.pkl")
+        with tempfile.TemporaryDirectory() as tmp:
+            local_path = os.path.join(tmp, "model.pkl")
 
-        with open(local_path, "wb") as f:
-            pickle.dump(model, f)
+            with open(local_path, "wb") as f:
+                pickle.dump(model, f)
 
-        s3_key = f"{S3_PREFIX}/model.pkl"
-        s3.upload_file(local_path, S3_BUCKET, s3_key)
+            s3_key = f"{S3_PREFIX}/model.pkl"
+            s3.upload_file(local_path, S3_BUCKET, s3_key)
 
-    print(f"✅ model.pkl uploaded to s3://{S3_BUCKET}/{s3_key}")
+        print(f"✅ model.pkl uploaded to s3://{S3_BUCKET}/{s3_key}")
+
+    except Exception as e:
+        print("❌ Failed to save champion model to S3")
+        traceback.print_exc()
+        raise e  # Fail the Step Function task for visibility
 
 # -----------------------------
 # Champion Selection Logic
@@ -125,25 +130,24 @@ def main():
     # No models at all
     # -------------------------
     if not challenger and not champion:
-        print("❌ No models found in registry")
+        print("❌ No models found in registry. Exiting.")
         return
 
     # -------------------------
     # No champion exists → promote challenger
     # -------------------------
-    if not champion:
+    if not champion and challenger:
         print("⚠️ No champion exists — promoting challenger")
 
         client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
         client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
 
-        save_model_to_s3(challenger)
-        return
+        champion = challenger  # now the active champion
 
     # -------------------------
-    # Champion exists
+    # Champion exists → compare with challenger
     # -------------------------
-    if challenger:
+    elif champion and challenger:
         challenger_metrics = get_metrics(challenger)
         champion_metrics = get_metrics(champion)
 
@@ -158,9 +162,11 @@ def main():
         if challenger_wins(challenger_metrics, champion_metrics):
             print("\n🏆 Challenger wins — promoting")
 
+            # Archive old champion
             client.set_model_version_tag(MODEL_NAME, champion.version, "role", "archived")
             client.set_model_version_tag(MODEL_NAME, champion.version, "status", "archived")
 
+            # Promote challenger
             client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
             client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
 
@@ -169,10 +175,13 @@ def main():
             print("\n⚠️ Challenger did not outperform champion — keeping current champion")
 
     # -------------------------
-    # ALWAYS save active champion
+    # ALWAYS save active champion to S3
     # -------------------------
-    print(f"\n📌 Persisting champion version {champion.version} to S3")
-    save_model_to_s3(champion)
+    if champion:
+        print(f"\n📌 Persisting active champion version {champion.version} to S3")
+        save_model_to_s3(champion)
+    else:
+        print("❌ No champion model available to save")
 
     print("✅ Champion selection completed")
 
