@@ -1,16 +1,24 @@
 """
-Champion selection script (EC2 MLflow + S3 copy)
+Champion selection script (EC2 MLflow + S3 copy + inference tar creation)
 
 - Compares challenger vs champion using MLflow metrics
 - Promotes challenger if it wins majority of metrics
 - ONLY IF PROMOTED:
     Finds latest model.pkl in S3 (prod_outputs/mlflow/models/)
-    and copies it to:
-    s3://mlops-creditcard/prod_outputs/champion_model/champion_model.pkl
+    Copies it to:
+        s3://mlops-creditcard/prod_outputs/champion_model/champion_model.pkl
+    Creates inference_aws.tar.gz containing:
+        - inference_aws.py
+        - champion_model.pkl
+    Uploads tar.gz to:
+        s3://mlops-creditcard/prod_codes/inference_aws.tar.gz
 """
 
 import boto3
 from mlflow.tracking import MlflowClient
+import shutil
+import tempfile
+from pathlib import Path
 
 # -----------------------------
 # Configuration
@@ -21,6 +29,7 @@ MODEL_NAME = "creditcard-fraud-model"
 S3_BUCKET = "mlops-creditcard"
 MLFLOW_MODELS_PREFIX = "prod_outputs/mlflow/models/"
 CHAMPION_KEY = "prod_outputs/champion_model/champion_model.pkl"
+INFERENCE_TAR_S3_KEY = "prod_codes/inference_aws.tar.gz"
 
 METRICS_TO_COMPARE = [
     "accuracy",
@@ -114,6 +123,32 @@ def copy_model_to_champion_s3():
     print("✅ Champion model updated successfully")
 
 
+def create_inference_tar():
+    """
+    Creates a tar.gz containing inference_aws.py and champion_model.pkl,
+    and uploads it to S3 under prod_codes/inference_aws.tar.gz
+    """
+    tmp_dir = Path(tempfile.mkdtemp())
+    try:
+        # Copy inference script
+        shutil.copy("inference_aws.py", tmp_dir / "inference_aws.py")
+        
+        # Copy champion model from S3
+        local_champion = Path(tempfile.gettempdir()) / "champion_model.pkl"
+        s3.download_file(S3_BUCKET, CHAMPION_KEY, str(local_champion))
+        shutil.copy(local_champion, tmp_dir / "champion_model.pkl")
+        
+        # Create tar.gz
+        tar_path = tmp_dir.parent / "inference_aws"
+        shutil.make_archive(str(tar_path), "gztar", tmp_dir)
+        
+        # Upload to S3
+        s3.upload_file(str(tar_path) + ".tar.gz", S3_BUCKET, INFERENCE_TAR_S3_KEY)
+        print(f"📦 inference_aws.tar.gz uploaded to s3://{S3_BUCKET}/{INFERENCE_TAR_S3_KEY}")
+    finally:
+        shutil.rmtree(tmp_dir)
+
+
 # -----------------------------
 # Champion Selection Logic
 # -----------------------------
@@ -138,6 +173,9 @@ def main():
         print("Copying Model to S3")
         copy_model_to_champion_s3()
         print("Latest Champion Model Copied to S3")
+        if promoted:
+            create_inference_tar()
+
     # Champion exists → compare metrics
     elif champion and challenger:
         challenger_metrics = get_metrics(challenger)
@@ -158,13 +196,13 @@ def main():
             print("Copying Model to S3")
             copy_model_to_champion_s3()
             print("Latest Champion Model Copied to S3")
+            if promoted:
+                create_inference_tar()
         else:
             print("\n⚠️ Challenger did not outperform champion — no promotion")
             print("ℹ️ No new champion — S3 model not updated")
 
     print(f"DEBUG → promoted={promoted}, champion_version={champion.version if champion else None}")
-
-   
     print("✅ Champion selection completed")
 
 
