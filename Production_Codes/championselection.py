@@ -91,31 +91,6 @@ def challenger_wins(challenger_metrics, champion_metrics):
     return wins > (total / 2)
 
 
-def save_model_to_s3(model_version):
-    """
-    Loads model from MLflow and saves model.pkl to S3
-    """
-    try:
-        print(f"📦 Saving model version {model_version.version} to S3")
-
-        model_uri = f"models:/{MODEL_NAME}/{model_version.version}"
-        model = mlflow.sklearn.load_model(model_uri)
-
-        with tempfile.TemporaryDirectory() as tmp:
-            local_path = os.path.join(tmp, "model.pkl")
-
-            with open(local_path, "wb") as f:
-                pickle.dump(model, f)
-
-            s3_key = f"{S3_PREFIX}/model.pkl"
-            s3.upload_file(local_path, S3_BUCKET, s3_key)
-
-        print(f"✅ model.pkl uploaded to s3://{S3_BUCKET}/{s3_key}")
-
-    except Exception as e:
-        print("❌ Failed to save champion model to S3")
-        traceback.print_exc()
-        raise e  # Fail the Step Function task for visibility
 
 # -----------------------------
 # Champion Selection Logic
@@ -174,14 +149,7 @@ def main():
         else:
             print("\n⚠️ Challenger did not outperform champion — keeping current champion")
 
-    # -------------------------
-    # ALWAYS save active champion to S3
-    # -------------------------
-    if champion:
-        print(f"\n📌 Persisting active champion version {champion.version} to S3")
-        save_model_to_s3(champion)
-    else:
-        print("❌ No champion model available to save")
+    
 
     print("✅ Champion selection completed")
 
