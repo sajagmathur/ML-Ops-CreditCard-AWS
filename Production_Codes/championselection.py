@@ -3,7 +3,7 @@ Champion selection script (EC2 MLflow).
 
 - Compares challenger vs champion using MLflow metrics
 - Promotes challenger if it wins majority of metrics
-- Saves ONLY the champion model.pkl to S3:
+- ALWAYS saves the active champion model.pkl to S3:
   s3://mlops-creditcard/prod_outputs/champion_model/model.pkl
 """
 
@@ -92,14 +92,13 @@ def challenger_wins(challenger_metrics, champion_metrics):
     return wins > (total / 2)
 
 
-def export_champion_model_to_s3(model_version):
+def save_model_to_s3(model_version):
     """
-    Loads champion model from MLflow and saves ONLY model.pkl to S3
+    Loads model from MLflow and saves model.pkl to S3
     """
-    print("📦 Exporting champion model to S3")
+    print(f"📦 Saving model version {model_version.version} to S3")
 
     model_uri = f"models:/{MODEL_NAME}/{model_version.version}"
-
     model = mlflow.sklearn.load_model(model_uri)
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -111,7 +110,7 @@ def export_champion_model_to_s3(model_version):
         s3_key = f"{S3_PREFIX}/model.pkl"
         s3.upload_file(local_path, S3_BUCKET, s3_key)
 
-    print(f"✅ Champion model saved to s3://{S3_BUCKET}/{s3_key}")
+    print(f"✅ model.pkl uploaded to s3://{S3_BUCKET}/{s3_key}")
 
 # -----------------------------
 # Champion Selection Logic
@@ -120,15 +119,17 @@ def main():
     print("🚀 Starting Champion Selection")
 
     challenger = get_latest_challenger()
-    if not challenger:
-        print("❌ No challenger found")
-        return
-
     champion = get_champion()
-    challenger_metrics = get_metrics(challenger)
 
     # -------------------------
-    # No champion exists
+    # No models at all
+    # -------------------------
+    if not challenger and not champion:
+        print("❌ No models found in registry")
+        return
+
+    # -------------------------
+    # No champion exists → promote challenger
     # -------------------------
     if not champion:
         print("⚠️ No champion exists — promoting challenger")
@@ -136,37 +137,44 @@ def main():
         client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
         client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
 
-        export_champion_model_to_s3(challenger)
+        save_model_to_s3(challenger)
         return
 
-    champion_metrics = get_metrics(champion)
+    # -------------------------
+    # Champion exists
+    # -------------------------
+    if challenger:
+        challenger_metrics = get_metrics(challenger)
+        champion_metrics = get_metrics(champion)
 
-    print("\n📊 Metric Comparison")
-    for m in METRICS_TO_COMPARE:
-        print(
-            f"{m:<12} | "
-            f"challenger={challenger_metrics.get(m)} | "
-            f"champion={champion_metrics.get(m)}"
-        )
+        print("\n📊 Metric Comparison")
+        for m in METRICS_TO_COMPARE:
+            print(
+                f"{m:<12} | "
+                f"challenger={challenger_metrics.get(m)} | "
+                f"champion={champion_metrics.get(m)}"
+            )
+
+        if challenger_wins(challenger_metrics, champion_metrics):
+            print("\n🏆 Challenger wins — promoting")
+
+            client.set_model_version_tag(MODEL_NAME, champion.version, "role", "archived")
+            client.set_model_version_tag(MODEL_NAME, champion.version, "status", "archived")
+
+            client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
+            client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
+
+            champion = challenger
+        else:
+            print("\n⚠️ Challenger did not outperform champion — keeping current champion")
 
     # -------------------------
-    # Compare & Promote
+    # ALWAYS save active champion
     # -------------------------
-    if challenger_wins(challenger_metrics, champion_metrics):
-        print("\n🏆 Challenger wins — promoting")
+    print(f"\n📌 Persisting champion version {champion.version} to S3")
+    save_model_to_s3(champion)
 
-        client.set_model_version_tag(MODEL_NAME, champion.version, "role", "archived")
-        client.set_model_version_tag(MODEL_NAME, champion.version, "status", "archived")
-
-        client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
-        client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
-
-        export_champion_model_to_s3(challenger)
-
-        print(f"✅ Challenger v{challenger.version} is now Champion")
-
-    else:
-        print("\n⚠️ Challenger did not outperform champion — no change")
+    print("✅ Champion selection completed")
 
 # -----------------------------
 # Entry point
