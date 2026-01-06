@@ -10,4 +10,4 @@ Building Credit Card Fraud Model Using Amazon Web Services
 7. Champion Selection through SSM System Command and running within EC2 Instance
 
 
-Code Push Trial v2
+Code Push Trial
