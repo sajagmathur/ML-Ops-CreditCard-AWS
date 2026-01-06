@@ -8,7 +8,7 @@ Champion selection script (EC2 MLflow + S3 copy + inference tar creation)
     Copies it to:
         s3://mlops-creditcard/prod_outputs/champion_model/champion_model.pkl
     Creates inference_aws.tar.gz containing:
-        - inference_aws.py
+        - inference.py
         - champion_model.pkl
     Uploads tar.gz to:
         s3://mlops-creditcard/prod_codes/inference_aws.tar.gz
@@ -87,66 +87,68 @@ def challenger_wins(challenger_metrics, champion_metrics):
 
 
 def find_latest_model_pkl_s3():
-    """
-    Loops through S3 under prod_outputs/mlflow/models/ and finds the latest model.pkl
-    """
     paginator = s3.get_paginator("list_objects_v2")
     pages = paginator.paginate(Bucket=S3_BUCKET, Prefix=MLFLOW_MODELS_PREFIX)
 
     candidates = []
     for page in pages:
         for obj in page.get("Contents", []):
-            key = obj["Key"]
-            if key.endswith("model.pkl"):
-                candidates.append({"Key": key, "LastModified": obj["LastModified"]})
+            if obj["Key"].endswith("model.pkl"):
+                candidates.append(
+                    {"Key": obj["Key"], "LastModified": obj["LastModified"]}
+                )
 
     if not candidates:
-        raise FileNotFoundError("No model.pkl found in S3 under mlflow/models/")
+        raise FileNotFoundError("No model.pkl found in mlflow/models")
 
-    latest = max(candidates, key=lambda x: x["LastModified"])
-    return latest["Key"]
+    return max(candidates, key=lambda x: x["LastModified"])["Key"]
 
 
 def copy_model_to_champion_s3():
-    """
-    Copies latest model.pkl from mlflow/models/ to champion_model location
-    """
     latest_key = find_latest_model_pkl_s3()
-    print(f"⬇️ Latest model.pkl in S3: s3://{S3_BUCKET}/{latest_key}")
-    print(f"⬆️ Copying to s3://{S3_BUCKET}/{CHAMPION_KEY}")
+    print(f"⬇️ Latest model.pkl: s3://{S3_BUCKET}/{latest_key}")
+    print(f"⬆️ Copying to: s3://{S3_BUCKET}/{CHAMPION_KEY}")
 
     s3.copy_object(
         Bucket=S3_BUCKET,
         CopySource={"Bucket": S3_BUCKET, "Key": latest_key},
         Key=CHAMPION_KEY
     )
-    print("✅ Champion model updated successfully")
+    print("✅ Champion model updated")
 
 
 def create_inference_tar():
     """
-    Creates a tar.gz containing inference_aws.py and champion_model.pkl,
-    and uploads it to S3 under prod_codes/inference_aws.tar.gz
+    Creates inference_aws.tar.gz containing:
+      - inference.py
+      - champion_model.pkl
     """
     tmp_dir = Path(tempfile.mkdtemp())
+
     try:
-        # Copy inference script
-        shutil.copy("inference_aws.py", tmp_dir / "inference_aws.py")
-        
-        # Copy champion model from S3
-        local_champion = Path(tempfile.gettempdir()) / "champion_model.pkl"
-        s3.download_file(S3_BUCKET, CHAMPION_KEY, str(local_champion))
-        shutil.copy(local_champion, tmp_dir / "champion_model.pkl")
-        
-        # Create tar.gz
-        tar_path = tmp_dir.parent / "inference_aws"
-        shutil.make_archive(str(tar_path), "gztar", tmp_dir)
-        
-        # Upload to S3
-        s3.upload_file(str(tar_path) + ".tar.gz", S3_BUCKET, INFERENCE_TAR_S3_KEY)
-        print(f"📦 inference_aws.tar.gz uploaded to s3://{S3_BUCKET}/{INFERENCE_TAR_S3_KEY}")
+        # inference.py (renamed entry script)
+        shutil.copy("inference.py", tmp_dir / "inference.py")
+
+        # champion_model.pkl
+        s3.download_file(
+            S3_BUCKET,
+            CHAMPION_KEY,
+            str(tmp_dir / "champion_model.pkl")
+        )
+
+        tar_base = tmp_dir.parent / "inference_aws"
+        shutil.make_archive(str(tar_base), "gztar", tmp_dir)
+
+        s3.upload_file(
+            str(tar_base) + ".tar.gz",
+            S3_BUCKET,
+            INFERENCE_TAR_S3_KEY
+        )
+
+        print(f"📦 Uploaded s3://{S3_BUCKET}/{INFERENCE_TAR_S3_KEY}")
+
     finally:
-        shutil.rmtree(tmp_dir)
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
 # -----------------------------
@@ -160,49 +162,34 @@ def main():
     promoted = False
 
     if not challenger and not champion:
-        print("❌ No models found in registry")
+        print("❌ No models found")
         return
 
-    # No champion → promote challenger
     if not champion and challenger:
-        print("⚠️ No champion exists — promoting challenger")
+        print("⚠️ No champion — promoting challenger")
         client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
         client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
-        champion = challenger
         promoted = True
-        print("Copying Model to S3")
-        copy_model_to_champion_s3()
-        print("Latest Champion Model Copied to S3")
-        if promoted:
-            create_inference_tar()
 
-    # Champion exists → compare metrics
     elif champion and challenger:
         challenger_metrics = get_metrics(challenger)
         champion_metrics = get_metrics(champion)
 
-        print("\n📊 Metric Comparison")
-        for m in METRICS_TO_COMPARE:
-            print(f"{m:<12} | challenger={challenger_metrics.get(m)} | champion={champion_metrics.get(m)}")
-
         if challenger_wins(challenger_metrics, champion_metrics):
-            print("\n🏆 Challenger wins — promoting")
+            print("🏆 Challenger wins — promoting")
             client.set_model_version_tag(MODEL_NAME, champion.version, "role", "archived")
             client.set_model_version_tag(MODEL_NAME, champion.version, "status", "archived")
             client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
             client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
-            champion = challenger
             promoted = True
-            print("Copying Model to S3")
-            copy_model_to_champion_s3()
-            print("Latest Champion Model Copied to S3")
-            if promoted:
-                create_inference_tar()
         else:
-            print("\n⚠️ Challenger did not outperform champion — no promotion")
-            print("ℹ️ No new champion — S3 model not updated")
+            print("⚠️ No promotion")
 
-    print(f"DEBUG → promoted={promoted}, champion_version={champion.version if champion else None}")
+    if promoted:
+        copy_model_to_champion_s3()
+        create_inference_tar()
+
+    print(f"DEBUG → promoted={promoted}")
     print("✅ Champion selection completed")
 
 
