@@ -24,4 +24,4 @@ Run Modes:
 | `{ "run": "batch_inference" }` | Batch inference only    |
 
 
-Code Push Trial V1
+Code Push Trial
