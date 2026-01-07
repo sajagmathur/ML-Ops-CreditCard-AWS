@@ -1,3 +1,4 @@
+
 name: Deploy MLOps Pipeline
 
 on:
@@ -50,10 +51,17 @@ jobs:
       # -----------------------------
       - name: Trigger Step Functions workflow
         run: |
+          INPUT_JSON=$(jq -n \
+            --arg s3_code_path "s3://mlops-creditcard/prod_codes/source_dir.tar.gz" \
+            --arg triggered_by "github_actions" \
+            --arg commit_sha "${{ github.sha }}" \
+            --arg run "all" \
+            '{
+              s3_code_path: $s3_code_path,
+              triggered_by: $triggered_by,
+              commit_sha: $commit_sha,
+              run: $run
+            }')
           aws stepfunctions start-execution \
-            --state-machine-arn ${{ secrets.STEPFUNCTIONS_ARN }} \
-            --input '{
-              "s3_code_path": "s3://mlops-creditcard/prod_codes/source_dir.tar.gz",
-              "triggered_by": "github_actions",
-              "commit_sha": "${{ github.sha }}"
-            }'
+            --state-machine-arn "${{ secrets.STEPFUNCTIONS_ARN }}" \
+            --input "$INPUT_JSON"
