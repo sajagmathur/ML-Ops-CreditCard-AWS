@@ -13,5 +13,15 @@ Other Services Used:
 1. AWS Cloud SHell: For running shell scripts
 2. AWS CloudWatch: For logs
 
+Run Modes:
+
+| Execution input                | What runs               |
+| ------------------------------ | ----------------------- |
+| `{}` or `{ "run": "all" }`     | Full pipeline           |
+| `{ "run": "train" }`           | Training only           |
+| `{ "run": "register" }`        | Register model only     |
+| `{ "run": "select_champion" }` | Champion selection only |
+| `{ "run": "batch_inference" }` | Batch inference only    |
+
 
 Code Push Trial V1

@@ -1,7 +1,35 @@
 {
   "Comment": "Credit card ML batch pipeline",
-  "StartAt": "TrainModel",
+  "StartAt": "ExecutionRouter",
   "States": {
+
+    "ExecutionRouter": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.run",
+          "StringEquals": "train",
+          "Next": "TrainModel"
+        },
+        {
+          "Variable": "$.run",
+          "StringEquals": "register",
+          "Next": "SubmitRegisterModelCommand"
+        },
+        {
+          "Variable": "$.run",
+          "StringEquals": "select_champion",
+          "Next": "SubmitSelectChampionCommand"
+        },
+        {
+          "Variable": "$.run",
+          "StringEquals": "batch_inference",
+          "Next": "BatchInference"
+        }
+      ],
+      "Default": "TrainModel"
+    },
+
     "TrainModel": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
@@ -42,14 +70,13 @@
       },
       "Next": "SubmitRegisterModelCommand"
     },
+
     "SubmitRegisterModelCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": [
-          "i-08d78517733fe6290"
-        ],
+        "InstanceIds": ["i-08d78517733fe6290"],
         "CloudWatchOutputConfig": {
           "CloudWatchLogGroupName": "/aws/ssm/register-model",
           "CloudWatchOutputEnabled": true
@@ -76,11 +103,13 @@
       },
       "Next": "WaitForRegisterModel"
     },
+
     "WaitForRegisterModel": {
       "Type": "Wait",
       "Seconds": 90,
       "Next": "CheckRegisterModelStatus"
     },
+
     "CheckRegisterModelStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
@@ -90,6 +119,7 @@
       },
       "Next": "CheckRegisterModelChoice"
     },
+
     "CheckRegisterModelChoice": {
       "Type": "Choice",
       "Choices": [
@@ -106,18 +136,18 @@
       ],
       "Default": "FailRegisterModel"
     },
+
     "FailRegisterModel": {
       "Type": "Fail",
       "Cause": "Register model failed"
     },
+
     "SubmitSelectChampionCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": [
-          "i-08d78517733fe6290"
-        ],
+        "InstanceIds": ["i-08d78517733fe6290"],
         "CloudWatchOutputConfig": {
           "CloudWatchLogGroupName": "/aws/ssm/select-champion",
           "CloudWatchOutputEnabled": true
@@ -143,11 +173,13 @@
       },
       "Next": "WaitForSelectChampion"
     },
+
     "WaitForSelectChampion": {
       "Type": "Wait",
       "Seconds": 90,
       "Next": "CheckSelectChampionStatus"
     },
+
     "CheckSelectChampionStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
@@ -157,6 +189,7 @@
       },
       "Next": "CheckSelectChampionChoice"
     },
+
     "CheckSelectChampionChoice": {
       "Type": "Choice",
       "Choices": [
@@ -173,10 +206,12 @@
       ],
       "Default": "FailSelectChampion"
     },
+
     "FailSelectChampion": {
       "Type": "Fail",
       "Cause": "Champion selection failed"
     },
+
     "BatchInference": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
@@ -187,7 +222,7 @@
           "DataSource": {
             "S3DataSource": {
               "S3DataType": "S3Prefix",
-              "S3Uri": "s3://mlops-creditcard/prod_inputs/"
+              "S3Uri": "s3://mlops-creditcard/prod_inputs/batch_input.csv"
             }
           },
           "ContentType": "text/csv",
