@@ -8,8 +8,8 @@ Champion selection script (EC2 MLflow + S3 copy + inference tar creation)
     Copies it to:
         s3://mlops-creditcard/prod_outputs/champion_model/champion_model.pkl
     Creates inference_aws.tar.gz containing:
-        - code/inference.py
-        - code/__init__.py
+        - inference.py
+        - __init__.py
         - champion_model.pkl
     Uploads tar.gz to:
         s3://mlops-creditcard/prod_codes/inference_aws.tar.gz
@@ -129,8 +129,8 @@ def create_inference_tar():
 
     try:
         # Create code/ directory
-        code_dir = tmp_dir / "code"
-        code_dir.mkdir(parents=True, exist_ok=True)
+        code_dir = tmp_dir
+        # code_dir.mkdir(parents=True, exist_ok=True)
 
         # Copy inference.py → code/inference.py
         shutil.copy("inference.py", code_dir / "inference.py")
