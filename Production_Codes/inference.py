@@ -1,85 +1,73 @@
 """
-inference_aws.py
+inference.py
 AWS SageMaker Batch Transform Inference Script
 
-- Loads champion model from S3
-- Runs batch predictions on input CSV from S3
-- Saves output predictions back to S3
+- Loads champion_model.pkl from /opt/ml/model
+- Reads CSV input from Batch Transform
+- Outputs CSV predictions
 """
 
-import boto3
+import os
 import joblib
 import pandas as pd
-from datetime import datetime
+from io import StringIO
 
-# -----------------------------
-# Configuration
-# -----------------------------
-S3_BUCKET = "mlops-creditcard"
-INPUT_KEY = "prod_inputs/batch_input.csv"                     # Input file
-OUTPUT_PREFIX = "prod_outputs/predictions"                    # Output folder
-MODEL_S3_KEY = "prod_outputs/champion_model/champion_model.pkl"  # Champion model path
+MODEL_FILENAME = "champion_model.pkl"
 
-# Initialize S3 client
-s3 = boto3.client("s3")
-
-# -----------------------------
-# Load batch input
-# -----------------------------
-def load_batch_input():
-    obj = s3.get_object(Bucket=S3_BUCKET, Key=INPUT_KEY)
-    df = pd.read_csv(obj["Body"])
-    print(f"📥 Loaded batch input: {df.shape}")
-    return df
-
-# -----------------------------
-# Load champion model from S3
-# -----------------------------
-def load_champion_model():
-    import tempfile
-    tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pkl")
-    s3.download_file(S3_BUCKET, MODEL_S3_KEY, tmp_file.name)
-    model = joblib.load(tmp_file.name)
-    print(f"🏆 Loaded champion model from s3://{S3_BUCKET}/{MODEL_S3_KEY}")
+# -------------------------------------------------
+# Load model (called once per container)
+# -------------------------------------------------
+def model_fn(model_dir):
+    model_path = os.path.join(model_dir, MODEL_FILENAME)
+    model = joblib.load(model_path)
+    print(f"🏆 Model loaded from {model_path}")
     return model
 
-# -----------------------------
-# Generate predictions
-# -----------------------------
-def generate_predictions(df, model):
+# -------------------------------------------------
+# Input parsing
+# -------------------------------------------------
+def input_fn(request_body, request_content_type):
+    if request_content_type != "text/csv":
+        raise ValueError(f"Unsupported content type: {request_content_type}")
+
+    df = pd.read_csv(StringIO(request_body))
+    print(f"📥 Batch input shape: {df.shape}")
+    return df
+
+# -------------------------------------------------
+# Prediction logic
+# -------------------------------------------------
+def predict_fn(input_data, model):
+    df = input_data.copy()
+
+    # Ensure ID column
     if "ID" not in df.columns:
         df.insert(0, "ID", range(1, len(df) + 1))
 
-    features = df.drop(columns=["ID"] + (["CLASS"] if "CLASS" in df.columns else []))
+    # Drop non-feature columns
+    drop_cols = ["ID"]
+    if "CLASS" in df.columns:
+        drop_cols.append("CLASS")
+
+    features = df.drop(columns=drop_cols)
 
     preds = model.predict(features)
-    probs = model.predict_proba(features)[:, 1] if hasattr(model, "predict_proba") else [None] * len(preds)
+
+    if hasattr(model, "predict_proba"):
+        probs = model.predict_proba(features)[:, 1]
+    else:
+        probs = [None] * len(preds)
 
     df["PREDICTION"] = preds
     df["PREDICTION_PROB"] = probs
+
     return df
 
-# -----------------------------
-# Save predictions to S3
-# -----------------------------
-def save_predictions_to_s3(df):
-    ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    output_key = f"{OUTPUT_PREFIX}/predictions_{ts}.csv"
-    s3.put_object(Bucket=S3_BUCKET, Key=output_key, Body=df.to_csv(index=False))
-    print(f"📤 Predictions saved to s3://{S3_BUCKET}/{output_key}")
+# -------------------------------------------------
+# Output formatting
+# -------------------------------------------------
+def output_fn(prediction_output, accept):
+    if accept != "text/csv":
+        raise ValueError(f"Unsupported accept type: {accept}")
 
-# -----------------------------
-# Main entrypoint
-# -----------------------------
-def main():
-    print("🚀 AWS Batch Transform Inference Started")
-
-    df = load_batch_input()
-    model = load_champion_model()
-    predictions_df = generate_predictions(df, model)
-    save_predictions_to_s3(predictions_df)
-
-    print("✅ AWS Batch Transform Inference Completed")
-
-if __name__ == "__main__":
-    main()
+    return prediction_output.to_csv(index=False), accept

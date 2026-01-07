@@ -185,11 +185,38 @@
     },
 
     "BatchInference": {
-      "Type": "Pass",
-      "Result": {
-        "status": "batch inference completed"
+  "Type": "Task",
+  "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
+  "Parameters": {
+    "TransformJobName.$": "States.Format('creditcard-batch-inference-{}', States.UUID())",
+
+    "ModelName": "inference-aws-model",
+
+    "TransformInput": {
+      "DataSource": {
+        "S3DataSource": {
+          "S3DataType": "S3Prefix",
+          "S3Uri": "s3://mlops-creditcard/prod_inputs/",
+          "S3DataDistributionType": "FullyReplicated"
+        }
       },
-      "End": true
+      "ContentType": "text/csv",
+      "SplitType": "Line"
+    },
+
+    "TransformOutput": {
+      "S3OutputPath": "s3://mlops-creditcard/prod_outputs/predictions/",
+      "Accept": "text/csv",
+      "AssembleWith": "Line"
+    },
+
+    "TransformResources": {
+      "InstanceType": "ml.m5.large",
+      "InstanceCount": 1
     }
+  },
+  "End": true
+}
+
   }
 }
