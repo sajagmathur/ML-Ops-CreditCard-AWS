@@ -1,554 +1,175 @@
-2026-01-07T12:24:43.536Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
+miniconda3/lib/python3.9/site-packages/sagemaker_containers/_server.py:22: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
 
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:43.536Z
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
+/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_server.py:22: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81. import pkg_resources
+2026-01-07T12:53:49.793Z
+2026-01-07 12:53:48,216 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
 
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:43.536Z
-2026-01-07 12:24:43,169 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
+2026-01-07 12:53:48,216 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
+2026-01-07T12:53:49.793Z
+2026-01-07 12:53:48,219 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
 
-2026-01-07 12:24:43,169 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:43.536Z
-2026-01-07 12:24:43,170 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
+2026-01-07 12:53:48,219 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
+2026-01-07T12:53:49.793Z
+2026-01-07 12:53:48,220 INFO - sagemaker-containers - nginx config: 
 
-2026-01-07 12:24:43,170 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:43.536Z
-[2026-01-07 12:24:43 +0000] [15] [ERROR] Error handling request /ping
+2026-01-07 12:53:48,220 INFO - sagemaker-containers - nginx config:
+2026-01-07T12:53:49.793Z
+worker_processes auto;
 
-[2026-01-07 12:24:43 +0000] [15] [ERROR] Error handling request /ping
-2026-01-07T12:24:43.536Z
+worker_processes auto;
+2026-01-07T12:53:49.793Z
+daemon off;
+
+daemon off;
+2026-01-07T12:53:49.793Z
+pid /tmp/nginx.pid;
+
+pid /tmp/nginx.pid;
+2026-01-07T12:53:49.793Z
+error_log  /dev/stderr;
+
+error_log /dev/stderr;
+2026-01-07T12:53:49.794Z
+worker_rlimit_nofile 4096;
+
+worker_rlimit_nofile 4096;
+2026-01-07T12:53:49.794Z
+events {
+  worker_connections 2048;
+
+events { worker_connections 2048;
+2026-01-07T12:53:49.794Z
+}
+
+}
+2026-01-07T12:53:49.794Z
+http {
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+  access_log /dev/stdout combined;
+  upstream gunicorn {
+    server unix:/tmp/gunicorn.sock;
+  }
+  server {
+    listen 8080 deferred;
+    client_max_body_size 0;
+    keepalive_timeout 3;
+    location ~ ^/(ping|invocations|execution-parameters) {
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_redirect off;
+      proxy_read_timeout 60s;
+      proxy_pass http://gunicorn;
+    }
+    location / {
+      return 404 "{}";
+    }
+  }
+
+http { include /etc/nginx/mime.types; default_type application/octet-stream; access_log /dev/stdout combined; upstream gunicorn { server unix:/tmp/gunicorn.sock; } server { listen 8080 deferred; client_max_body_size 0; keepalive_timeout 3; location ~ ^/(ping|invocations|execution-parameters) { proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header Host $http_host; proxy_redirect off; proxy_read_timeout 60s; proxy_pass http://gunicorn; } location / { return 404 "{}"; } }
+2026-01-07T12:53:49.794Z
+}
+
+}
+2026-01-07T12:53:49.794Z
+2026-01-07 12:53:48,517 INFO - sagemaker-containers - Module code/inference does not provide a setup.py. 
+
+2026-01-07 12:53:48,517 INFO - sagemaker-containers - Module code/inference does not provide a setup.py.
+2026-01-07T12:53:49.794Z
+Generating setup.py
+
+Generating setup.py
+2026-01-07T12:53:49.794Z
+2026-01-07 12:53:48,517 INFO - sagemaker-containers - Generating setup.cfg
+
+2026-01-07 12:53:48,517 INFO - sagemaker-containers - Generating setup.cfg
+2026-01-07T12:53:49.794Z
+2026-01-07 12:53:48,517 INFO - sagemaker-containers - Generating MANIFEST.in
+
+2026-01-07 12:53:48,517 INFO - sagemaker-containers - Generating MANIFEST.in
+2026-01-07T12:53:49.794Z
+2026-01-07 12:53:48,518 INFO - sagemaker-containers - Installing module with the following command:
+
+2026-01-07 12:53:48,518 INFO - sagemaker-containers - Installing module with the following command:
+2026-01-07T12:53:49.794Z
+/miniconda3/bin/python3 -m pip install . 
+
+/miniconda3/bin/python3 -m pip install .
+2026-01-07T12:53:49.794Z
+Processing /opt/ml/code
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'done'
+
+Processing /opt/ml/code Preparing metadata (setup.py): started Preparing metadata (setup.py): finished with status 'done'
+2026-01-07T12:53:49.794Z
+Building wheels for collected packages: code-inference
+  DEPRECATION: Building 'code-inference' using the legacy setup.py bdist_wheel mechanism, which will be removed in a future version. pip 25.3 will enforce this behaviour change. A possible replacement is to use the standardized build interface by setting the `--use-pep517` option, (possibly combined with `--no-build-isolation`), or adding a `pyproject.toml` file to the source tree of 'code-inference'. Discussion can be found at https://github.com/pypa/pip/issues/6334
+  Building wheel for code-inference (setup.py): started
+  Building wheel for code-inference (setup.py): finished with status 'done'
+  Created wheel for code-inference: filename=code_inference-1.0.0-py2.py3-none-any.whl size=312351 sha256=2c9c8d917a2b0519b137acf31fe244e1b9306cd74f3947d36be8511007566bc4
+  Stored in directory: /home/model-server/tmp/pip-ephem-wheel-cache-va3ec4w1/wheels/40/03/3a/5f39818cea87b3c154b54d046a775b3da4b8ed9b642b8d50e6
+
+Building wheels for collected packages: code-inference DEPRECATION: Building 'code-inference' using the legacy setup.py bdist_wheel mechanism, which will be removed in a future version. pip 25.3 will enforce this behaviour change. A possible replacement is to use the standardized build interface by setting the `--use-pep517` option, (possibly combined with `--no-build-isolation`), or adding a `pyproject.toml` file to the source tree of 'code-inference'. Discussion can be found at https://github.com/pypa/pip/issues/6334 Building wheel for code-inference (setup.py): started Building wheel for code-inference (setup.py): finished with status 'done' Created wheel for code-inference: filename=code_inference-1.0.0-py2.py3-none-any.whl size=312351 sha256=2c9c8d917a2b0519b137acf31fe244e1b9306cd74f3947d36be8511007566bc4 Stored in directory: /home/model-server/tmp/pip-ephem-wheel-cache-va3ec4w1/wheels/40/03/3a/5f39818cea87b3c154b54d046a775b3da4b8ed9b642b8d50e6
+2026-01-07T12:53:49.794Z
+Successfully built code-inference
+
+Successfully built code-inference
+2026-01-07T12:53:49.794Z
+Installing collected packages: code-inference
+
+Installing collected packages: code-inference
+2026-01-07T12:53:49.794Z
+Successfully installed code-inference-1.0.0
+
+Successfully installed code-inference-1.0.0
+2026-01-07T12:53:49.795Z
+[notice] A new release of pip is available: 25.2 -> 25.3
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+2026-01-07T12:53:49.795Z
+[notice] To update, run: pip install --upgrade pip
+
+[notice] To update, run: pip install --upgrade pip
+2026-01-07T12:53:49.795Z
 Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
+  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_modules.py", line 258, in import_module
+    module = importlib.import_module(name)
+  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 984, in _find_and_load_unlocked
 
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:43.536Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
+Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_modules.py", line 258, in import_module module = importlib.import_module(name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module return _bootstrap._gcd_import(name[level:], package, level) File "<frozen importlib._bootstrap>", line 1030, in _gcd_import File "<frozen importlib._bootstrap>", line 1007, in _find_and_load File "<frozen importlib._bootstrap>", line 984, in _find_and_load_unlocked
+2026-01-07T12:53:49.795Z
+ModuleNotFoundError: No module named 'code/inference'
 
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:43.537Z
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
+ModuleNotFoundError: No module named 'code/inference'
+2026-01-07T12:53:49.795Z
+During handling of the above exception, another exception occurred:
 
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:43.537Z
-2026-01-07 12:24:43,280 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:43,280 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:43.537Z
-2026-01-07 12:24:43,280 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:43,280 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:43.537Z
-[2026-01-07 12:24:43 +0000] [16] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:43 +0000] [16] [ERROR] Error handling request /ping
-2026-01-07T12:24:43.537Z
+During handling of the above exception, another exception occurred:
+2026-01-07T12:53:49.795Z
 Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:43.537Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:43.537Z
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:43.537Z
-2026-01-07 12:24:43,391 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:43,391 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:43.537Z
-2026-01-07 12:24:43,391 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:43,391 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:43.537Z
-[2026-01-07 12:24:43 +0000] [15] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:43 +0000] [15] [ERROR] Error handling request /ping
-2026-01-07T12:24:43.537Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:43.537Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:43.537Z
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:43.537Z
-2026-01-07 12:24:43,501 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:43,501 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:43.537Z
-2026-01-07 12:24:43,502 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:43,502 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:43.537Z
-[2026-01-07 12:24:43 +0000] [16] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:43 +0000] [16] [ERROR] Error handling request /ping
-2026-01-07T12:24:43.537Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:43.537Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:43.537Z
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:44.538Z
-2026-01-07 12:24:43,612 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:43,612 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:44.538Z
-2026-01-07 12:24:43,612 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:43,612 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:44.538Z
-[2026-01-07 12:24:43 +0000] [15] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:43 +0000] [15] [ERROR] Error handling request /ping
-2026-01-07T12:24:44.538Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:44.538Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:44.538Z
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:44.538Z
-2026-01-07 12:24:43,723 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:43,723 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:44.538Z
-2026-01-07 12:24:43,723 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:43,723 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:44.538Z
-[2026-01-07 12:24:43 +0000] [16] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:43 +0000] [16] [ERROR] Error handling request /ping
-2026-01-07T12:24:44.538Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:44.538Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:44.538Z
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:44.538Z
-2026-01-07 12:24:43,834 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:43,834 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:44.538Z
-2026-01-07 12:24:43,834 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:43,834 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:44.538Z
-[2026-01-07 12:24:43 +0000] [15] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:43 +0000] [15] [ERROR] Error handling request /ping
-2026-01-07T12:24:44.538Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:44.538Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:44.538Z
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:44.538Z
-2026-01-07 12:24:43,945 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:43,945 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:44.538Z
-2026-01-07 12:24:43,945 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:43,945 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:44.538Z
-[2026-01-07 12:24:43 +0000] [16] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:43 +0000] [16] [ERROR] Error handling request /ping
-2026-01-07T12:24:44.538Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:44.538Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:44.538Z
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:43 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:44.539Z
-2026-01-07 12:24:44,056 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:44,056 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:44.539Z
-2026-01-07 12:24:44,056 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:44,056 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:44.539Z
-[2026-01-07 12:24:44 +0000] [15] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:44 +0000] [15] [ERROR] Error handling request /ping
-2026-01-07T12:24:44.539Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:44.539Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:44.539Z
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:44.539Z
-2026-01-07 12:24:44,167 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:44,167 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:44.539Z
-2026-01-07 12:24:44,168 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:44,168 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:44.539Z
-[2026-01-07 12:24:44 +0000] [16] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:44 +0000] [16] [ERROR] Error handling request /ping
-2026-01-07T12:24:44.539Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:44.539Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:44.539Z
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:44.539Z
-2026-01-07 12:24:44,279 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:44,279 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:44.539Z
-2026-01-07 12:24:44,279 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:44,279 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:44.539Z
-[2026-01-07 12:24:44 +0000] [16] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:44 +0000] [16] [ERROR] Error handling request /ping
-2026-01-07T12:24:44.539Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:44.539Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:44.539Z
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:44.539Z
-2026-01-07 12:24:44,391 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:44,391 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:44.539Z
-2026-01-07 12:24:44,391 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:44,391 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:44.539Z
-[2026-01-07 12:24:44 +0000] [15] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:44 +0000] [15] [ERROR] Error handling request /ping
-2026-01-07T12:24:44.539Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:44.539Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:44.539Z
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:44.539Z
-2026-01-07 12:24:44,502 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:44,502 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:44.540Z
-2026-01-07 12:24:44,502 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:44,502 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:44.540Z
-[2026-01-07 12:24:44 +0000] [15] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:44 +0000] [15] [ERROR] Error handling request /ping
-2026-01-07T12:24:44.540Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:44.540Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:44.540Z
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:45.540Z
-2026-01-07 12:24:44,612 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:44,612 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:45.540Z
-2026-01-07 12:24:44,613 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:44,613 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:45.540Z
-[2026-01-07 12:24:44 +0000] [16] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:44 +0000] [16] [ERROR] Error handling request /ping
-2026-01-07T12:24:45.540Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:45.540Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:45.540Z
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:45.540Z
-2026-01-07 12:24:44,724 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:44,724 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:45.540Z
-2026-01-07 12:24:44,724 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-
-2026-01-07 12:24:44,724 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
-2026-01-07T12:24:45.540Z
-[2026-01-07 12:24:44 +0000] [15] [ERROR] Error handling request /ping
-
-[2026-01-07 12:24:44 +0000] [15] [ERROR] Error handling request /ping
-2026-01-07T12:24:45.540Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle
-    self.handle_request(listener_name, req, client, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request
-    super().handle_request(listener_name, req, sock, addr)
-  File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request
-    respiter = self.wsgi(environ, resp.start_response)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main
-    user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module
-    user_module = importlib.import_module(module_name)
-  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module
-    if name.startswith('.'):
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 54, in handle self.handle_request(listener_name, req, client, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/ggevent.py", line 127, in handle_request super().handle_request(listener_name, req, sock, addr) File "/miniconda3/lib/python3.9/site-packages/gunicorn/workers/base_async.py", line 107, in handle_request respiter = self.wsgi(environ, resp.start_response) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 140, in main user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 118, in import_module user_module = importlib.import_module(module_name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 118, in import_module if name.startswith('.'):
-2026-01-07T12:24:45.540Z
-AttributeError: 'NoneType' object has no attribute 'startswith'
-
-AttributeError: 'NoneType' object has no attribute 'startswith'
-2026-01-07T12:24:45.541Z
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [07/Jan/2026:12:24:44 +0000] "GET /ping HTTP/1.1" 500 141 "-" "Go-http-client/1.1"
-2026-01-07T12:24:45.541Z
-2026-01-07 12:24:44,835 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-07 12:24:44,835 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-07T12:24:45.541Z
-2026-01-07 12:24:44,835 INFO - sagemaker_sklearn_container.serving - Encountered an unexpected error.
+  File "/miniconda3/bin/serve", line 7, in <module>
+    sys.exit(serving_entrypoint())
+  File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 159, in serving_entrypoint
+    server.start(env.ServingEnv().framework_module)
+  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_server.py", line 86, in start
+    _modules.import_module(env.module_dir, env.module_name)
+  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_modules.py", line 263, in import_module
+    six.reraise(_errors.ImportModuleError, _errors.ImportModuleError(e), sys.exc_info()[2])
+  File "/miniconda3/lib/python3.9/site-packages/six.py", line 702, in reraise
+    raise value.with_traceback(tb)
+  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_modules.py", line 258, in import_module
+    module = importlib.import_module(name)
+  File "/miniconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 984, in _find_and_load_unlocked
+
+Traceback (most recent call last): File "/miniconda3/bin/serve", line 7, in <module> sys.exit(serving_entrypoint()) File "/miniconda3/lib/python3.9/site-packages/sagemaker_sklearn_container/serving.py", line 159, in serving_entrypoint server.start(env.ServingEnv().framework_module) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_server.py", line 86, in start _modules.import_module(env.module_dir, env.module_name) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_modules.py", line 263, in import_module six.reraise(_errors.ImportModuleError, _errors.ImportModuleError(e), sys.exc_info()[2]) File "/miniconda3/lib/python3.9/site-packages/six.py", line 702, in reraise raise value.with_traceback(tb) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_modules.py", line 258, in import_module module = importlib.import_module(name) File "/miniconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module return _bootstrap._gcd_import(name[level:], package, level) File "<frozen importlib._bootstrap>", line 1030, in _gcd_import File "<frozen importlib._bootstrap>", line 1007, in _find_and_load File "<frozen importlib._bootstrap>", line 984, in _find_and_load_unlocked
+2026-01-07T12:53:49.795Z
+sagemaker_containers._errors.ImportModuleError: No module named 'code/inference'
