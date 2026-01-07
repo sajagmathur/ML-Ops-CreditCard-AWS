@@ -42,13 +42,14 @@
       },
       "Next": "SubmitRegisterModelCommand"
     },
-
     "SubmitRegisterModelCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": ["i-08d78517733fe6290"],
+        "InstanceIds": [
+          "i-08d78517733fe6290"
+        ],
         "CloudWatchOutputConfig": {
           "CloudWatchLogGroupName": "/aws/ssm/register-model",
           "CloudWatchOutputEnabled": true
@@ -75,13 +76,11 @@
       },
       "Next": "WaitForRegisterModel"
     },
-
     "WaitForRegisterModel": {
       "Type": "Wait",
       "Seconds": 90,
       "Next": "CheckRegisterModelStatus"
     },
-
     "CheckRegisterModelStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
@@ -91,7 +90,6 @@
       },
       "Next": "CheckRegisterModelChoice"
     },
-
     "CheckRegisterModelChoice": {
       "Type": "Choice",
       "Choices": [
@@ -108,18 +106,18 @@
       ],
       "Default": "FailRegisterModel"
     },
-
     "FailRegisterModel": {
       "Type": "Fail",
       "Cause": "Register model failed"
     },
-
     "SubmitSelectChampionCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": ["i-08d78517733fe6290"],
+        "InstanceIds": [
+          "i-08d78517733fe6290"
+        ],
         "CloudWatchOutputConfig": {
           "CloudWatchLogGroupName": "/aws/ssm/select-champion",
           "CloudWatchOutputEnabled": true
@@ -145,13 +143,11 @@
       },
       "Next": "WaitForSelectChampion"
     },
-
     "WaitForSelectChampion": {
       "Type": "Wait",
       "Seconds": 90,
       "Next": "CheckSelectChampionStatus"
     },
-
     "CheckSelectChampionStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
@@ -161,7 +157,6 @@
       },
       "Next": "CheckSelectChampionChoice"
     },
-
     "CheckSelectChampionChoice": {
       "Type": "Choice",
       "Choices": [
@@ -178,45 +173,37 @@
       ],
       "Default": "FailSelectChampion"
     },
-
     "FailSelectChampion": {
       "Type": "Fail",
       "Cause": "Champion selection failed"
     },
-
     "BatchInference": {
-  "Type": "Task",
-  "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
-  "Parameters": {
-    "TransformJobName.$": "States.Format('creditcard-batch-inference-{}', States.UUID())",
-
-    "ModelName": "inference-aws-model",
-
-    "TransformInput": {
-      "DataSource": {
-        "S3DataSource": {
-          "S3DataType": "S3Prefix",
-          "S3Uri": "s3://mlops-creditcard/prod_inputs/",
-          "S3DataDistributionType": "FullyReplicated"
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
+      "Parameters": {
+        "TransformJobName.$": "States.Format('creditcard-batch-inference-{}', States.UUID())",
+        "ModelName": "inference-aws-model",
+        "TransformInput": {
+          "DataSource": {
+            "S3DataSource": {
+              "S3DataType": "S3Prefix",
+              "S3Uri": "s3://mlops-creditcard/prod_inputs/"
+            }
+          },
+          "ContentType": "text/csv",
+          "SplitType": "Line"
+        },
+        "TransformOutput": {
+          "S3OutputPath": "s3://mlops-creditcard/prod_outputs/predictions/",
+          "Accept": "text/csv",
+          "AssembleWith": "Line"
+        },
+        "TransformResources": {
+          "InstanceType": "ml.m5.large",
+          "InstanceCount": 1
         }
       },
-      "ContentType": "text/csv",
-      "SplitType": "Line"
-    },
-
-    "TransformOutput": {
-      "S3OutputPath": "s3://mlops-creditcard/prod_outputs/predictions/",
-      "Accept": "text/csv",
-      "AssembleWith": "Line"
-    },
-
-    "TransformResources": {
-      "InstanceType": "ml.m5.large",
-      "InstanceCount": 1
+      "End": true
     }
-  },
-  "End": true
-}
-
   }
 }
