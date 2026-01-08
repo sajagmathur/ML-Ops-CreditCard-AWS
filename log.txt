@@ -1,303 +1,178 @@
-Successfully installed inference-1.0.0
+@@ -2,7 +2,6 @@
+  "Comment": "Credit card ML batch pipeline",
+  "StartAt": "ExecutionRouter",
+  "States": {
 
-Successfully installed inference-1.0.0
-2026-01-08T11:08:58.296Z
-[notice] A new release of pip is available: 25.2 -> 25.3
+    "ExecutionRouter": {
+      "Type": "Choice",
+      "Choices": [
+@@ -29,7 +28,6 @@
+      ],
+      "Default": "TrainModel"
+    },
 
-[notice] A new release of pip is available: 25.2 -> 25.3
-2026-01-08T11:08:58.296Z
-[notice] To update, run: pip install --upgrade pip
+    "TrainModel": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
+@@ -70,13 +68,14 @@
+      },
+      "Next": "SubmitRegisterModelCommand"
+    },
 
-[notice] To update, run: pip install --upgrade pip
-2026-01-08T11:08:58.296Z
-[2026-01-08 11:08:55 +0000] [21] [INFO] Starting gunicorn 23.0.0
+    "SubmitRegisterModelCommand": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
+      "Parameters": {
+        "DocumentName": "AWS-RunShellScript",
+        "InstanceIds": ["i-08d78517733fe6290"],
+        "InstanceIds": [
+          "i-08d78517733fe6290"
+        ],
+        "CloudWatchOutputConfig": {
+          "CloudWatchLogGroupName": "/aws/ssm/register-model",
+          "CloudWatchOutputEnabled": true
+@@ -103,13 +102,11 @@
+      },
+      "Next": "WaitForRegisterModel"
+    },
 
-[2026-01-08 11:08:55 +0000] [21] [INFO] Starting gunicorn 23.0.0
-2026-01-08T11:08:58.296Z
-[2026-01-08 11:08:55 +0000] [21] [INFO] Listening at: unix:/tmp/gunicorn.sock (21)
+    "WaitForRegisterModel": {
+      "Type": "Wait",
+      "Seconds": 90,
+      "Next": "CheckRegisterModelStatus"
+    },
 
-[2026-01-08 11:08:55 +0000] [21] [INFO] Listening at: unix:/tmp/gunicorn.sock (21)
-2026-01-08T11:08:58.296Z
-[2026-01-08 11:08:55 +0000] [21] [INFO] Using worker: gevent
+    "CheckRegisterModelStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
+@@ -119,7 +116,6 @@
+      },
+      "Next": "CheckRegisterModelChoice"
+    },
 
-[2026-01-08 11:08:55 +0000] [21] [INFO] Using worker: gevent
-2026-01-08T11:08:58.296Z
-[2026-01-08 11:08:55 +0000] [22] [INFO] Booting worker with pid: 22
+    "CheckRegisterModelChoice": {
+      "Type": "Choice",
+      "Choices": [
+@@ -136,18 +132,18 @@
+      ],
+      "Default": "FailRegisterModel"
+    },
 
-[2026-01-08 11:08:55 +0000] [22] [INFO] Booting worker with pid: 22
-2026-01-08T11:08:58.296Z
-[2026-01-08 11:08:55 +0000] [23] [INFO] Booting worker with pid: 23
+    "FailRegisterModel": {
+      "Type": "Fail",
+      "Cause": "Register model failed"
+    },
 
-[2026-01-08 11:08:55 +0000] [23] [INFO] Booting worker with pid: 23
-2026-01-08T11:08:58.296Z
-/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_server.py:22: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  import pkg_resources
+    "SubmitSelectChampionCommand": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
+      "Parameters": {
+        "DocumentName": "AWS-RunShellScript",
+        "InstanceIds": ["i-08d78517733fe6290"],
+        "InstanceIds": [
+          "i-08d78517733fe6290"
+        ],
+        "CloudWatchOutputConfig": {
+          "CloudWatchLogGroupName": "/aws/ssm/select-champion",
+          "CloudWatchOutputEnabled": true
+@@ -173,13 +169,11 @@
+      },
+      "Next": "WaitForSelectChampion"
+    },
 
-/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_server.py:22: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81. import pkg_resources
-2026-01-08T11:08:58.296Z
-/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_server.py:22: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  import pkg_resources
+    "WaitForSelectChampion": {
+      "Type": "Wait",
+      "Seconds": 90,
+      "Seconds": 60,
+      "Next": "CheckSelectChampionStatus"
+    },
 
-/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_server.py:22: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81. import pkg_resources
-2026-01-08T11:09:03.298Z
-2026-01-08 11:09:02,819 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
+    "CheckSelectChampionStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
+@@ -189,7 +183,6 @@
+      },
+      "Next": "CheckSelectChampionChoice"
+    },
 
-2026-01-08 11:09:02,819 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-08T11:09:04.298Z
-🏆 Model loaded from /opt/ml/model/champion_model.pkl
+    "CheckSelectChampionChoice": {
+      "Type": "Choice",
+      "Choices": [
+@@ -201,44 +194,75 @@
+        {
+          "Variable": "$.Status",
+          "StringEquals": "Success",
+          "Next": "BatchInference"
+          "Next": "DeleteInferenceModel"
+        }
+      ],
+      "Default": "FailSelectChampion"
+    },
 
-🏆 Model loaded from /opt/ml/model/champion_model.pkl
-2026-01-08T11:09:04.299Z
-169.254.255.130 - - [08/Jan/2026:11:09:03 +0000] "GET /ping HTTP/1.1" 200 0 "-" "Go-http-client/1.1"
+    "FailSelectChampion": {
+      "Type": "Fail",
+      "Cause": "Champion selection failed"
+    },
 
-169.254.255.130 - - [08/Jan/2026:11:09:03 +0000] "GET /ping HTTP/1.1" 200 0 "-" "Go-http-client/1.1"
-2026-01-08T11:09:04.299Z
-2026-01-08 11:09:03,599 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-
-2026-01-08 11:09:03,599 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
-2026-01-08T11:09:04.299Z
-🏆 Model loaded from /opt/ml/model/champion_model.pkl
-
-🏆 Model loaded from /opt/ml/model/champion_model.pkl
-2026-01-08T11:09:04.299Z
-169.254.255.130 - - [08/Jan/2026:11:09:04 +0000] "GET /execution-parameters HTTP/1.1" 404 232 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [08/Jan/2026:11:09:04 +0000] "GET /execution-parameters HTTP/1.1" 404 232 "-" "Go-http-client/1.1"
-2026-01-08T11:09:05.299Z
-📥 Batch input shape: (10000, 30)
-
-📥 Batch input shape: (10000, 30)
-2026-01-08T11:09:05.299Z
-2026-01-08 11:09:04,683 ERROR - inference - Exception on /invocations [POST]
-
-2026-01-08 11:09:04,683 ERROR - inference - Exception on /invocations [POST]
-2026-01-08T11:09:05.299Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper
-    return fn(*args, **kwargs)
-  File "/opt/ml/code/inference.py", line 71, in output_fn
-    raise ValueError(f"Unsupported accept type: {accept}")
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper return fn(*args, **kwargs) File "/opt/ml/code/inference.py", line 71, in output_fn raise ValueError(f"Unsupported accept type: {accept}")
-2026-01-08T11:09:05.299Z
-ValueError: Unsupported accept type: application/json
-
-ValueError: Unsupported accept type: application/json
-2026-01-08T11:09:05.299Z
-During handling of the above exception, another exception occurred:
-
-During handling of the above exception, another exception occurred:
-2026-01-08T11:09:05.300Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 2446, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1951, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1820, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/miniconda3/lib/python3.9/site-packages/flask/_compat.py", line 39, in reraise
-    raise value
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1949, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1935, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 199, in transform
-    result = self._transform_fn(
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 234, in _default_transform_fn
-    result = self._output_fn(prediction, accept)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 95, in wrapper
-    six.reraise(error_class, error_class(e), sys.exc_info()[2])
-  File "/miniconda3/lib/python3.9/site-packages/six.py", line 702, in reraise
-    raise value.with_traceback(tb)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper
-    return fn(*args, **kwargs)
-  File "/opt/ml/code/inference.py", line 71, in output_fn
-    raise ValueError(f"Unsupported accept type: {accept}")
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 2446, in wsgi_app response = self.full_dispatch_request() File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1951, in full_dispatch_request rv = self.handle_user_exception(e) File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1820, in handle_user_exception reraise(exc_type, exc_value, tb) File "/miniconda3/lib/python3.9/site-packages/flask/_compat.py", line 39, in reraise raise value File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1949, in full_dispatch_request rv = self.dispatch_request() File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1935, in dispatch_request return self.view_functions[rule.endpoint](**req.view_args) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 199, in transform result = self._transform_fn( File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 234, in _default_transform_fn result = self._output_fn(prediction, accept) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 95, in wrapper six.reraise(error_class, error_class(e), sys.exc_info()[2]) File "/miniconda3/lib/python3.9/site-packages/six.py", line 702, in reraise raise value.with_traceback(tb) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper return fn(*args, **kwargs) File "/opt/ml/code/inference.py", line 71, in output_fn raise ValueError(f"Unsupported accept type: {accept}")
-2026-01-08T11:09:05.300Z
-sagemaker_containers._errors.ClientError: Unsupported accept type: application/json
-
-sagemaker_containers._errors.ClientError: Unsupported accept type: application/json
-2026-01-08T11:09:05.300Z
-169.254.255.130 - - [08/Jan/2026:11:09:04 +0000] "POST /invocations HTTP/1.1" 500 290 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [08/Jan/2026:11:09:04 +0000] "POST /invocations HTTP/1.1" 500 290 "-" "Go-http-client/1.1"
-2026-01-08T11:09:05.300Z
-📥 Batch input shape: (10000, 30)
-
-📥 Batch input shape: (10000, 30)
-2026-01-08T11:09:05.300Z
-2026-01-08 11:09:05,014 ERROR - inference - Exception on /invocations [POST]
-
-2026-01-08 11:09:05,014 ERROR - inference - Exception on /invocations [POST]
-2026-01-08T11:09:05.300Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper
-    return fn(*args, **kwargs)
-  File "/opt/ml/code/inference.py", line 71, in output_fn
-    raise ValueError(f"Unsupported accept type: {accept}")
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper return fn(*args, **kwargs) File "/opt/ml/code/inference.py", line 71, in output_fn raise ValueError(f"Unsupported accept type: {accept}")
-2026-01-08T11:09:05.300Z
-ValueError: Unsupported accept type: application/json
-
-ValueError: Unsupported accept type: application/json
-2026-01-08T11:09:05.300Z
-During handling of the above exception, another exception occurred:
-
-During handling of the above exception, another exception occurred:
-2026-01-08T11:09:05.301Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 2446, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1951, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1820, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/miniconda3/lib/python3.9/site-packages/flask/_compat.py", line 39, in reraise
-    raise value
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1949, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1935, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 199, in transform
-    result = self._transform_fn(
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 234, in _default_transform_fn
-    result = self._output_fn(prediction, accept)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 95, in wrapper
-    six.reraise(error_class, error_class(e), sys.exc_info()[2])
-  File "/miniconda3/lib/python3.9/site-packages/six.py", line 702, in reraise
-    raise value.with_traceback(tb)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper
-    return fn(*args, **kwargs)
-  File "/opt/ml/code/inference.py", line 71, in output_fn
-    raise ValueError(f"Unsupported accept type: {accept}")
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 2446, in wsgi_app response = self.full_dispatch_request() File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1951, in full_dispatch_request rv = self.handle_user_exception(e) File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1820, in handle_user_exception reraise(exc_type, exc_value, tb) File "/miniconda3/lib/python3.9/site-packages/flask/_compat.py", line 39, in reraise raise value File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1949, in full_dispatch_request rv = self.dispatch_request() File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1935, in dispatch_request return self.view_functions[rule.endpoint](**req.view_args) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 199, in transform result = self._transform_fn( File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 234, in _default_transform_fn result = self._output_fn(prediction, accept) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 95, in wrapper six.reraise(error_class, error_class(e), sys.exc_info()[2]) File "/miniconda3/lib/python3.9/site-packages/six.py", line 702, in reraise raise value.with_traceback(tb) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper return fn(*args, **kwargs) File "/opt/ml/code/inference.py", line 71, in output_fn raise ValueError(f"Unsupported accept type: {accept}")
-2026-01-08T11:09:05.301Z
-sagemaker_containers._errors.ClientError: Unsupported accept type: application/json
-
-sagemaker_containers._errors.ClientError: Unsupported accept type: application/json
-2026-01-08T11:09:05.301Z
-169.254.255.130 - - [08/Jan/2026:11:09:05 +0000] "POST /invocations HTTP/1.1" 500 290 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [08/Jan/2026:11:09:05 +0000] "POST /invocations HTTP/1.1" 500 290 "-" "Go-http-client/1.1"
-2026-01-08T11:09:05.301Z
-📥 Batch input shape: (10000, 30)
-
-📥 Batch input shape: (10000, 30)
-2026-01-08T11:09:06.301Z
-2026-01-08 11:09:05,311 ERROR - inference - Exception on /invocations [POST]
-
-2026-01-08 11:09:05,311 ERROR - inference - Exception on /invocations [POST]
-2026-01-08T11:09:06.301Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper
-    return fn(*args, **kwargs)
-  File "/opt/ml/code/inference.py", line 71, in output_fn
-    raise ValueError(f"Unsupported accept type: {accept}")
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper return fn(*args, **kwargs) File "/opt/ml/code/inference.py", line 71, in output_fn raise ValueError(f"Unsupported accept type: {accept}")
-2026-01-08T11:09:06.301Z
-ValueError: Unsupported accept type: application/json
-
-ValueError: Unsupported accept type: application/json
-2026-01-08T11:09:06.301Z
-During handling of the above exception, another exception occurred:
-
-During handling of the above exception, another exception occurred:
-2026-01-08T11:09:06.302Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 2446, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1951, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1820, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/miniconda3/lib/python3.9/site-packages/flask/_compat.py", line 39, in reraise
-    raise value
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1949, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1935, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 199, in transform
-    result = self._transform_fn(
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 234, in _default_transform_fn
-    result = self._output_fn(prediction, accept)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 95, in wrapper
-    six.reraise(error_class, error_class(e), sys.exc_info()[2])
-  File "/miniconda3/lib/python3.9/site-packages/six.py", line 702, in reraise
-    raise value.with_traceback(tb)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper
-    return fn(*args, **kwargs)
-  File "/opt/ml/code/inference.py", line 71, in output_fn
-    raise ValueError(f"Unsupported accept type: {accept}")
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 2446, in wsgi_app response = self.full_dispatch_request() File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1951, in full_dispatch_request rv = self.handle_user_exception(e) File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1820, in handle_user_exception reraise(exc_type, exc_value, tb) File "/miniconda3/lib/python3.9/site-packages/flask/_compat.py", line 39, in reraise raise value File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1949, in full_dispatch_request rv = self.dispatch_request() File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1935, in dispatch_request return self.view_functions[rule.endpoint](**req.view_args) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 199, in transform result = self._transform_fn( File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 234, in _default_transform_fn result = self._output_fn(prediction, accept) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 95, in wrapper six.reraise(error_class, error_class(e), sys.exc_info()[2]) File "/miniconda3/lib/python3.9/site-packages/six.py", line 702, in reraise raise value.with_traceback(tb) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper return fn(*args, **kwargs) File "/opt/ml/code/inference.py", line 71, in output_fn raise ValueError(f"Unsupported accept type: {accept}")
-2026-01-08T11:09:06.302Z
-sagemaker_containers._errors.ClientError: Unsupported accept type: application/json
-
-sagemaker_containers._errors.ClientError: Unsupported accept type: application/json
-2026-01-08T11:09:06.302Z
-169.254.255.130 - - [08/Jan/2026:11:09:05 +0000] "POST /invocations HTTP/1.1" 500 290 "-" "Go-http-client/1.1"
-
-169.254.255.130 - - [08/Jan/2026:11:09:05 +0000] "POST /invocations HTTP/1.1" 500 290 "-" "Go-http-client/1.1"
-2026-01-08T11:09:06.302Z
-📥 Batch input shape: (10000, 30)
-
-📥 Batch input shape: (10000, 30)
-2026-01-08T11:09:06.302Z
-2026-01-08 11:09:05,607 ERROR - inference - Exception on /invocations [POST]
-
-2026-01-08 11:09:05,607 ERROR - inference - Exception on /invocations [POST]
-2026-01-08T11:09:06.302Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper
-    return fn(*args, **kwargs)
-  File "/opt/ml/code/inference.py", line 71, in output_fn
-    raise ValueError(f"Unsupported accept type: {accept}")
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper return fn(*args, **kwargs) File "/opt/ml/code/inference.py", line 71, in output_fn raise ValueError(f"Unsupported accept type: {accept}")
-2026-01-08T11:09:06.302Z
-ValueError: Unsupported accept type: application/json
-
-ValueError: Unsupported accept type: application/json
-2026-01-08T11:09:06.302Z
-During handling of the above exception, another exception occurred:
-
-During handling of the above exception, another exception occurred:
-2026-01-08T11:09:06.302Z
-Traceback (most recent call last):
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 2446, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1951, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1820, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/miniconda3/lib/python3.9/site-packages/flask/_compat.py", line 39, in reraise
-    raise value
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1949, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1935, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 199, in transform
-    result = self._transform_fn(
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 234, in _default_transform_fn
-    result = self._output_fn(prediction, accept)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 95, in wrapper
-    six.reraise(error_class, error_class(e), sys.exc_info()[2])
-  File "/miniconda3/lib/python3.9/site-packages/six.py", line 702, in reraise
-    raise value.with_traceback(tb)
-  File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper
-    return fn(*args, **kwargs)
-  File "/opt/ml/code/inference.py", line 71, in output_fn
-    raise ValueError(f"Unsupported accept type: {accept}")
-
-Traceback (most recent call last): File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 2446, in wsgi_app response = self.full_dispatch_request() File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1951, in full_dispatch_request rv = self.handle_user_exception(e) File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1820, in handle_user_exception reraise(exc_type, exc_value, tb) File "/miniconda3/lib/python3.9/site-packages/flask/_compat.py", line 39, in reraise raise value File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1949, in full_dispatch_request rv = self.dispatch_request() File "/miniconda3/lib/python3.9/site-packages/flask/app.py", line 1935, in dispatch_request return self.view_functions[rule.endpoint](**req.view_args) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 199, in transform result = self._transform_fn( File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_transformer.py", line 234, in _default_transform_fn result = self._output_fn(prediction, accept) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 95, in wrapper six.reraise(error_class, error_class(e), sys.exc_info()[2]) File "/miniconda3/lib/python3.9/site-packages/six.py", line 702, in reraise raise value.with_traceback(tb) File "/miniconda3/lib/python3.9/site-packages/sagemaker_containers/_functions.py", line 93, in wrapper return fn(*args, **kwargs) File "/opt/ml/code/inference.py", line 71, in output_fn raise ValueError(f"Unsupported accept type: {accept}")
-2026-01-08T11:09:06.302Z
-sagemaker_containers._errors.ClientError: Unsupported accept type: application/json
-
-sagemaker_containers._errors.ClientError: Unsupported accept type: application/json
-2026-01-08T11:09:06.302Z
-169.254.255.130 - - [08/Jan/2026:11:09:05 +0000] "POST /invocations HTTP/1.1" 500 290 "-" "Go-http-client/1.1"
+    "DeleteInferenceModel": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:sagemaker:deleteModel",
+      "Parameters": {
+        "ModelName": "inference-aws-model"
+      },
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "CreateInferenceModel"
+        }
+      ],
+      "Next": "CreateInferenceModel"
+    },
+    "CreateInferenceModel": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:sagemaker:createModel",
+      "Parameters": {
+        "ModelName": "inference-aws-model",
+        "ExecutionRoleArn": "arn:aws:iam::075960506214:role/service-role/AmazonSageMaker-ExecutionRole-20251229T181530",
+        "PrimaryContainer": {
+          "Image": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn:1.2-1-cpu-py3",
+          "ModelDataUrl": "s3://mlops-creditcard/prod_codes/inference_aws.tar.gz",
+          "Environment": {
+            "SAGEMAKER_PROGRAM": "inference.py",
+            "SAGEMAKER_SUBMIT_DIRECTORY": "s3://mlops-creditcard/prod_codes/inference_aws.tar.gz"
+          }
+        }
+      },
+      "Next": "BatchInference"
+    },
+    "BatchInference": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
+      "Parameters": {
+        "TransformJobName.$": "States.Format('creditcard-batch-inference-{}', States.UUID())",
+        "ModelName": "inference-aws-model",
+        "TransformInput": {
+          "DataSource": {
+            "S3DataSource": {
+              "S3DataType": "S3Prefix",
+              "S3Uri": "s3://mlops-creditcard/prod_inputs/batch_input.csv"
+            }
+          },
+          "ContentType": "text/csv",
+          "SplitType": "Line"
+        },
+        "TransformOutput": {
+          "S3OutputPath": "s3://mlops-creditcard/prod_outputs/predictions/",
+          "Accept": "text/csv",
+          "AssembleWith": "Line"
+        },
+        "TransformResources": {
+          "InstanceType": "ml.m5.large",
+          "InstanceCount": 1
+        }
+      },
+      "End": true
+    }
+  }
