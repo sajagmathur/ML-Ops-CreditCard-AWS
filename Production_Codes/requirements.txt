@@ -25,7 +25,7 @@ statsmodels>=0.12.2
 
 # Monitoring
 evidently==0.6.3
+watchdog==3.0.0
 
 # Optional (safe in Processing jobs)
 uvicorn[standard]==0.22.0
-watchdog==2.3.1
