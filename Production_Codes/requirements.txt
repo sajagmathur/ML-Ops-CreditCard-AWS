@@ -4,7 +4,7 @@ pandas==1.1.3
 scikit-learn==1.2.1
 scipy==1.8.0
 urllib3==1.26.17
-
+matplotlib==3.7.1
 # Required by pandas / sklearn runtime
 python-dateutil==2.8.1
 pytz==2023.3
