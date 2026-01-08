@@ -1,6 +1,5 @@
 # MUST come first
 numpy<2.0,>=1.21.6
-pip>=23.0
 setuptools>=65.0
 wheel
 
@@ -11,7 +10,7 @@ protobuf==3.20.2
 python-dateutil==2.8.1
 urllib3==1.26.17
 
-# Other libraries pinned to compatible versions
+# Additional libraries pinned to compatible versions
 pyarrow==6.0.1
 scikit-learn==0.24.2
 matplotlib==3.3.4
