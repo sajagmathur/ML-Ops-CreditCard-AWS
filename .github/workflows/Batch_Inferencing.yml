@@ -1,0 +1,42 @@
+name: Weekly Batch Inferencing
+
+on:
+  schedule:
+    # 8:00 AM IST = 02:30 UTC
+    - cron: "30 2 * * 1"
+
+  workflow_dispatch: {}
+
+jobs:
+  batch-inference:
+    runs-on: ubuntu-latest
+
+    steps:
+      # -----------------------------
+      # 1. Configure AWS credentials
+      # -----------------------------
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # -----------------------------
+      # 2. Trigger Batch Inference Step Function
+      # -----------------------------
+      - name: Trigger batch inferencing Step Function
+        run: |
+          INPUT_JSON=$(jq -n \
+            --arg triggered_by "github_actions" \
+            --arg run "inference" \
+            '{
+              triggered_by: $triggered_by,
+              run: $run
+            }')
+
+          aws stepfunctions start-execution \
+            --state-machine-arn "${{ secrets.STEPFUNCTIONS_ARN_INFERENCING }}" \
+            --name "batch-inference-$(date +%s)" \
+            --input "$INPUT_JSON"
