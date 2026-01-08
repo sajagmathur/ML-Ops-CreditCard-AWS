@@ -210,7 +210,9 @@
       },
       "Catch": [
         {
-          "ErrorEquals": ["States.ALL"],
+          "ErrorEquals": [
+            "States.ALL"
+          ],
           "Next": "CreateInferenceModel"
         }
       ],
@@ -347,8 +349,7 @@
             "InstanceCount": 1,
             "VolumeSizeInGB": 10
           }
-        },
-        "MaxRuntimeInSeconds": 900
+        }
       },
       "End": true
     }
