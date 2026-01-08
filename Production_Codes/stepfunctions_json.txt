@@ -2,19 +2,37 @@
   "Comment": "Credit card ML batch pipeline with monitoring",
   "StartAt": "ExecutionRouter",
   "States": {
-
     "ExecutionRouter": {
       "Type": "Choice",
       "Choices": [
-        { "Variable": "$.run", "StringEquals": "train", "Next": "TrainModel" },
-        { "Variable": "$.run", "StringEquals": "register", "Next": "SubmitRegisterModelCommand" },
-        { "Variable": "$.run", "StringEquals": "select_champion", "Next": "SubmitSelectChampionCommand" },
-        { "Variable": "$.run", "StringEquals": "batch_inference", "Next": "BatchInference" },
-        { "Variable": "$.run", "StringEquals": "monitor", "Next": "RunMonitoringJob" }
+        {
+          "Variable": "$.run",
+          "StringEquals": "train",
+          "Next": "TrainModel"
+        },
+        {
+          "Variable": "$.run",
+          "StringEquals": "register",
+          "Next": "SubmitRegisterModelCommand"
+        },
+        {
+          "Variable": "$.run",
+          "StringEquals": "select_champion",
+          "Next": "SubmitSelectChampionCommand"
+        },
+        {
+          "Variable": "$.run",
+          "StringEquals": "batch_inference",
+          "Next": "BatchInference"
+        },
+        {
+          "Variable": "$.run",
+          "StringEquals": "monitor",
+          "Next": "RunMonitoringJob"
+        }
       ],
       "Default": "TrainModel"
     },
-
     "TrainModel": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
@@ -55,13 +73,14 @@
       },
       "Next": "SubmitRegisterModelCommand"
     },
-
     "SubmitRegisterModelCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": ["i-08d78517733fe6290"],
+        "InstanceIds": [
+          "i-08d78517733fe6290"
+        ],
         "Parameters": {
           "commands": [
             "set -e",
@@ -79,13 +98,14 @@
       },
       "Next": "SubmitSelectChampionCommand"
     },
-
     "SubmitSelectChampionCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": ["i-08d78517733fe6290"],
+        "InstanceIds": [
+          "i-08d78517733fe6290"
+        ],
         "Parameters": {
           "commands": [
             "set -e",
@@ -102,17 +122,22 @@
       },
       "Next": "DeleteInferenceModel"
     },
-
     "DeleteInferenceModel": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:sagemaker:deleteModel",
-      "Parameters": { "ModelName": "inference-aws-model" },
+      "Parameters": {
+        "ModelName": "inference-aws-model"
+      },
       "Catch": [
-        { "ErrorEquals": ["States.ALL"], "Next": "CreateInferenceModel" }
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "CreateInferenceModel"
+        }
       ],
       "Next": "CreateInferenceModel"
     },
-
     "CreateInferenceModel": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:sagemaker:createModel",
@@ -130,7 +155,6 @@
       },
       "Next": "BatchInference"
     },
-
     "BatchInference": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
@@ -158,23 +182,20 @@
       },
       "Next": "RunMonitoringJob"
     },
-
     "RunMonitoringJob": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createProcessingJob.sync",
       "Parameters": {
         "ProcessingJobName.$": "States.Format('creditcard-monitoring-{}', States.UUID())",
         "RoleArn": "arn:aws:iam::075960506214:role/service-role/AmazonSageMaker-ExecutionRole-20251229T181530",
-
         "AppSpecification": {
           "ImageUri": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn:1.2-1-cpu-py3",
           "ContainerEntrypoint": [
             "bash",
             "-c",
-            "tar -xzf /opt/ml/processing/code/source_dir.tar.gz -C /opt/ml/processing/code && python /opt/ml/processing/code/monitor.py"
+            "tar -xzf /opt/ml/processing/code/source_dir.tar.gz -C /opt/ml/processing/code && pip install -r /opt/ml/processing/code/requirements.txt && python /opt/ml/processing/code/monitor.py"
           ]
         },
-
         "ProcessingInputs": [
           {
             "InputName": "reference",
@@ -213,7 +234,6 @@
             }
           }
         ],
-
         "ProcessingOutputConfig": {
           "Outputs": [
             {
@@ -242,7 +262,6 @@
             }
           ]
         },
-
         "ProcessingResources": {
           "ClusterConfig": {
             "InstanceType": "ml.m5.large",
@@ -253,6 +272,5 @@
       },
       "End": true
     }
-
   }
 }
