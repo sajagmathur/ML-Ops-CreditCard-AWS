@@ -1,0 +1,28 @@
+I'm diagnosing the following console error:
+
+1 error was found in your workflow./States/RunMonitoringJob/Parameters: The field "ProcessingOutputs" is not supported by Step Functions. Did you mean 'ProcessingInputs'?
+Analysis
+The error message indicates that the "ProcessingOutputs" field in the "RunMonitoringJob" state is not supported by AWS Step Functions. This field is typically used in Amazon SageMaker Processing Jobs, but it is not a valid parameter for the Step Functions "createProcessingJob.sync" task. The user should review the state machine definition and ensure that the parameters are correctly specified for the Step Functions service.
+Resolution
+Try the following steps to resolve your error:
+
+
+If you don't have permissions to do the following changes, contact your AWS Administrator
+
+Navigate to the AWS Step Functions console
+
+Locate and select the state machine named 'mlops-creditcard-pipeline'
+
+Click on 'Edit' to modify the state machine definition
+
+In the state machine definition, locate the 'RunMonitoringJob' state
+
+Remove the 'ProcessingOutputs' field from the 'Parameters' section of the 'RunMonitoringJob' state
+
+If you need to specify output locations for the monitoring job, consider using environment variables or passing the information through the input payload instead
+
+Review the SageMaker CreateProcessingJob API documentation to ensure all other parameters are correctly specified for use with Step Functions
+
+Save the changes to the state machine definition
+
+Test the updated state machine to ensure the error has been resolved
