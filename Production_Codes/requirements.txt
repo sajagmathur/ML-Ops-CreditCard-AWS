@@ -1,10 +1,7 @@
-# MUST come first
-numpy<2.0,>=1.21.6
-pip>=23.0
+# Core dependencies pinned for SageMaker compatibility
+numpy>=1.21.6,<2.0
 setuptools>=65.0
 wheel
-
-# Core dependencies pinned for SageMaker compatibility
 pandas==1.1.3
 scipy==1.8.0
 protobuf==3.20.2
@@ -16,6 +13,6 @@ pyarrow==6.0.1
 scikit-learn==0.24.2
 matplotlib==3.3.4
 plotly==5.13.1
-evidently==0.7.19
+evidently==0.6.3
 uvicorn[standard]==0.22.0
 watchdog==2.3.1
