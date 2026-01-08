@@ -2,37 +2,19 @@
   "Comment": "Credit card ML batch pipeline with monitoring",
   "StartAt": "ExecutionRouter",
   "States": {
+
     "ExecutionRouter": {
       "Type": "Choice",
       "Choices": [
-        {
-          "Variable": "$.run",
-          "StringEquals": "train",
-          "Next": "TrainModel"
-        },
-        {
-          "Variable": "$.run",
-          "StringEquals": "register",
-          "Next": "SubmitRegisterModelCommand"
-        },
-        {
-          "Variable": "$.run",
-          "StringEquals": "select_champion",
-          "Next": "SubmitSelectChampionCommand"
-        },
-        {
-          "Variable": "$.run",
-          "StringEquals": "batch_inference",
-          "Next": "BatchInference"
-        },
-        {
-          "Variable": "$.run",
-          "StringEquals": "monitor",
-          "Next": "RunMonitoringJob"
-        }
+        { "Variable": "$.run", "StringEquals": "train", "Next": "TrainModel" },
+        { "Variable": "$.run", "StringEquals": "register", "Next": "SubmitRegisterModelCommand" },
+        { "Variable": "$.run", "StringEquals": "select_champion", "Next": "SubmitSelectChampionCommand" },
+        { "Variable": "$.run", "StringEquals": "batch_inference", "Next": "BatchInference" },
+        { "Variable": "$.run", "StringEquals": "monitor", "Next": "RunMonitoringJob" }
       ],
       "Default": "TrainModel"
     },
+
     "TrainModel": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
@@ -73,14 +55,18 @@
       },
       "Next": "SubmitRegisterModelCommand"
     },
+
     "SubmitRegisterModelCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
+      "ResultPath": "$.RegisterCmd",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": [
-          "i-08d78517733fe6290"
-        ],
+        "InstanceIds": ["i-08d78517733fe6290"],
+        "CloudWatchOutputConfig": {
+          "CloudWatchLogGroupName": "/aws/ssm/register-model",
+          "CloudWatchOutputEnabled": true
+        },
         "Parameters": {
           "commands": [
             "set -e",
@@ -96,16 +82,51 @@
           ]
         }
       },
-      "Next": "SubmitSelectChampionCommand"
+      "Next": "WaitForRegisterModel"
     },
+
+    "WaitForRegisterModel": {
+      "Type": "Wait",
+      "Seconds": 90,
+      "Next": "CheckRegisterModelStatus"
+    },
+
+    "CheckRegisterModelStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
+      "ResultPath": "$.RegisterStatus",
+      "Parameters": {
+        "CommandId.$": "$.RegisterCmd.Command.CommandId",
+        "InstanceId": "i-08d78517733fe6290"
+      },
+      "Next": "CheckRegisterModelChoice"
+    },
+
+    "CheckRegisterModelChoice": {
+      "Type": "Choice",
+      "Choices": [
+        { "Variable": "$.RegisterStatus.Status", "StringEquals": "InProgress", "Next": "WaitForRegisterModel" },
+        { "Variable": "$.RegisterStatus.Status", "StringEquals": "Success", "Next": "SubmitSelectChampionCommand" }
+      ],
+      "Default": "FailRegisterModel"
+    },
+
+    "FailRegisterModel": {
+      "Type": "Fail",
+      "Cause": "Register model failed"
+    },
+
     "SubmitSelectChampionCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
+      "ResultPath": "$.ChampionCmd",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": [
-          "i-08d78517733fe6290"
-        ],
+        "InstanceIds": ["i-08d78517733fe6290"],
+        "CloudWatchOutputConfig": {
+          "CloudWatchLogGroupName": "/aws/ssm/select-champion",
+          "CloudWatchOutputEnabled": true
+        },
         "Parameters": {
           "commands": [
             "set -e",
@@ -120,8 +141,40 @@
           ]
         }
       },
-      "Next": "DeleteInferenceModel"
+      "Next": "WaitForSelectChampion"
     },
+
+    "WaitForSelectChampion": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "CheckSelectChampionStatus"
+    },
+
+    "CheckSelectChampionStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
+      "ResultPath": "$.ChampionStatus",
+      "Parameters": {
+        "CommandId.$": "$.ChampionCmd.Command.CommandId",
+        "InstanceId": "i-08d78517733fe6290"
+      },
+      "Next": "CheckSelectChampionChoice"
+    },
+
+    "CheckSelectChampionChoice": {
+      "Type": "Choice",
+      "Choices": [
+        { "Variable": "$.ChampionStatus.Status", "StringEquals": "InProgress", "Next": "WaitForSelectChampion" },
+        { "Variable": "$.ChampionStatus.Status", "StringEquals": "Success", "Next": "DeleteInferenceModel" }
+      ],
+      "Default": "FailSelectChampion"
+    },
+
+    "FailSelectChampion": {
+      "Type": "Fail",
+      "Cause": "Champion selection failed"
+    },
+
     "DeleteInferenceModel": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:sagemaker:deleteModel",
@@ -129,15 +182,11 @@
         "ModelName": "inference-aws-model"
       },
       "Catch": [
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "Next": "CreateInferenceModel"
-        }
+        { "ErrorEquals": ["States.ALL"], "Next": "CreateInferenceModel" }
       ],
       "Next": "CreateInferenceModel"
     },
+
     "CreateInferenceModel": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:sagemaker:createModel",
@@ -155,6 +204,7 @@
       },
       "Next": "BatchInference"
     },
+
     "BatchInference": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
@@ -183,6 +233,7 @@
       },
       "Next": "RunMonitoringJob"
     },
+
     "RunMonitoringJob": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createProcessingJob.sync",
@@ -195,72 +246,6 @@
             "bash",
             "-c",
             "tar -xzf /opt/ml/processing/code/source_dir.tar.gz -C /opt/ml/processing/code && pip install -r /opt/ml/processing/code/requirements.txt && python /opt/ml/processing/code/monitor.py"
-          ]
-        },
-        "ProcessingInputs": [
-          {
-            "InputName": "reference",
-            "S3Input": {
-              "S3Uri": "s3://mlops-creditcard/monitoring_inputs/Training_Data/",
-              "LocalPath": "/opt/ml/processing/input/reference",
-              "S3DataType": "S3Prefix",
-              "S3InputMode": "File"
-            }
-          },
-          {
-            "InputName": "current",
-            "S3Input": {
-              "S3Uri": "s3://mlops-creditcard/monitoring_inputs/Current_Data/",
-              "LocalPath": "/opt/ml/processing/input/current",
-              "S3DataType": "S3Prefix",
-              "S3InputMode": "File"
-            }
-          },
-          {
-            "InputName": "model",
-            "S3Input": {
-              "S3Uri": "s3://mlops-creditcard/prod_outputs/champion_model/",
-              "LocalPath": "/opt/ml/processing/input/model",
-              "S3DataType": "S3Prefix",
-              "S3InputMode": "File"
-            }
-          },
-          {
-            "InputName": "code",
-            "S3Input": {
-              "S3Uri": "s3://mlops-creditcard/prod_codes/source_dir.tar.gz",
-              "LocalPath": "/opt/ml/processing/code",
-              "S3DataType": "S3Prefix",
-              "S3InputMode": "File"
-            }
-          }
-        ],
-        "ProcessingOutputConfig": {
-          "Outputs": [
-            {
-              "OutputName": "monitoring",
-              "S3Output": {
-                "S3Uri": "s3://mlops-creditcard/monitoring_outputs/monitoring/",
-                "LocalPath": "/opt/ml/processing/output/monitoring",
-                "S3UploadMode": "EndOfJob"
-              }
-            },
-            {
-              "OutputName": "metrics",
-              "S3Output": {
-                "S3Uri": "s3://mlops-creditcard/monitoring_outputs/metrics/",
-                "LocalPath": "/opt/ml/processing/output/metrics",
-                "S3UploadMode": "EndOfJob"
-              }
-            },
-            {
-              "OutputName": "retraining",
-              "S3Output": {
-                "S3Uri": "s3://mlops-creditcard/monitoring_outputs/retraining_decision/",
-                "LocalPath": "/opt/ml/processing/output/retraining_decision",
-                "S3UploadMode": "EndOfJob"
-              }
-            }
           ]
         },
         "ProcessingResources": {
