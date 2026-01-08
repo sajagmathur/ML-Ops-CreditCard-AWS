@@ -1,5 +1,5 @@
 {
-  "Comment": "Credit card ML monitoring pipeline",
+  "Comment": "Credit card ML monitoring only pipeline",
   "StartAt": "RunMonitoringJob",
   "States": {
     "RunMonitoringJob": {
@@ -57,10 +57,10 @@
         "ProcessingOutputConfig": {
           "Outputs": [
             {
-              "OutputName": "monitoring",
+              "OutputName": "drift",
               "S3Output": {
-                "S3Uri": "s3://mlops-creditcard/monitoring_outputs/monitoring/",
-                "LocalPath": "/opt/ml/processing/output/monitoring",
+                "S3Uri": "s3://mlops-creditcard/monitoring_outputs/drift/",
+                "LocalPath": "/opt/ml/processing/output/drift",
                 "S3UploadMode": "EndOfJob"
               }
             },
