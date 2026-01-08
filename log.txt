@@ -1,745 +1,177 @@
-2026-01-08T07:21:43.634Z
-Collecting evidently
-  Downloading evidently-0.7.19-py3-none-any.whl.metadata (11 kB)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: numpy<2.0,>=1.21.6 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 2)) (1.24.1)
 
-Collecting evidently Downloading evidently-0.7.19-py3-none-any.whl.metadata (11 kB)
-2026-01-08T07:21:43.634Z
-Requirement already satisfied: certifi>=2024.7.4 in /miniconda3/lib/python3.9/site-packages (from evidently) (2025.8.3)
+Requirement already satisfied: numpy<2.0,>=1.21.6 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 2)) (1.24.1)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: setuptools>=65.0 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 3)) (80.9.0)
 
-Requirement already satisfied: certifi>=2024.7.4 in /miniconda3/lib/python3.9/site-packages (from evidently) (2025.8.3)
-2026-01-08T07:21:43.634Z
-Collecting cryptography>=43.0.1 (from evidently)
-  Downloading cryptography-46.0.3-cp38-abi3-manylinux_2_28_x86_64.whl.metadata (5.7 kB)
+Requirement already satisfied: setuptools>=65.0 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 3)) (80.9.0)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: wheel in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 4)) (0.43.0)
 
-Collecting cryptography>=43.0.1 (from evidently) Downloading cryptography-46.0.3-cp38-abi3-manylinux_2_28_x86_64.whl.metadata (5.7 kB)
-2026-01-08T07:21:43.634Z
-Collecting deprecation>=2.1.0 (from evidently)
-  Downloading deprecation-2.1.0-py2.py3-none-any.whl.metadata (4.6 kB)
+Requirement already satisfied: wheel in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 4)) (0.43.0)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: pandas==1.1.3 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 5)) (1.1.3)
 
-Collecting deprecation>=2.1.0 (from evidently) Downloading deprecation-2.1.0-py2.py3-none-any.whl.metadata (4.6 kB)
-2026-01-08T07:21:43.634Z
-Collecting dynaconf>=3.2.4 (from evidently)
-  Downloading dynaconf-3.2.12-py2.py3-none-any.whl.metadata (9.4 kB)
+Requirement already satisfied: pandas==1.1.3 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 5)) (1.1.3)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: scipy==1.8.0 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 6)) (1.8.0)
 
-Collecting dynaconf>=3.2.4 (from evidently) Downloading dynaconf-3.2.12-py2.py3-none-any.whl.metadata (9.4 kB)
-2026-01-08T07:21:43.634Z
-Collecting fsspec>=2024.9.0 (from evidently)
-  Downloading fsspec-2025.10.0-py3-none-any.whl.metadata (10 kB)
+Requirement already satisfied: scipy==1.8.0 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 6)) (1.8.0)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: protobuf==3.20.2 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 7)) (3.20.2)
 
-Collecting fsspec>=2024.9.0 (from evidently) Downloading fsspec-2025.10.0-py3-none-any.whl.metadata (10 kB)
-2026-01-08T07:21:43.635Z
-Collecting iterative-telemetry>=0.0.5 (from evidently)
-  Downloading iterative_telemetry-0.0.10-py3-none-any.whl.metadata (4.1 kB)
+Requirement already satisfied: protobuf==3.20.2 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 7)) (3.20.2)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: python-dateutil==2.8.1 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 8)) (2.8.1)
 
-Collecting iterative-telemetry>=0.0.5 (from evidently) Downloading iterative_telemetry-0.0.10-py3-none-any.whl.metadata (4.1 kB)
-2026-01-08T07:21:43.635Z
-Collecting litestar>=2.19.0 (from evidently)
-  Downloading litestar-2.19.0-py3-none-any.whl.metadata (26 kB)
+Requirement already satisfied: python-dateutil==2.8.1 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 8)) (2.8.1)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: urllib3==1.26.17 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 9)) (1.26.17)
 
-Collecting litestar>=2.19.0 (from evidently) Downloading litestar-2.19.0-py3-none-any.whl.metadata (26 kB)
-2026-01-08T07:21:43.635Z
-Collecting nltk>=3.6.7 (from evidently)
-  Downloading nltk-3.9.2-py3-none-any.whl.metadata (3.2 kB)
+Requirement already satisfied: urllib3==1.26.17 in /miniconda3/lib/python3.9/site-packages (from -r /opt/ml/processing/code/requirements.txt (line 9)) (1.26.17)
+2026-01-08T08:56:53.143Z
+Collecting pyarrow==6.0.1 (from -r /opt/ml/processing/code/requirements.txt (line 12))
+  Downloading pyarrow-6.0.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.9 kB)
 
-Collecting nltk>=3.6.7 (from evidently) Downloading nltk-3.9.2-py3-none-any.whl.metadata (3.2 kB)
-2026-01-08T07:21:43.635Z
-Requirement already satisfied: numpy>=1.22.0 in /miniconda3/lib/python3.9/site-packages (from evidently) (1.24.1)
+Collecting pyarrow==6.0.1 (from -r /opt/ml/processing/code/requirements.txt (line 12)) Downloading pyarrow-6.0.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.9 kB)
+2026-01-08T08:56:53.143Z
+Collecting scikit-learn==0.24.2 (from -r /opt/ml/processing/code/requirements.txt (line 13))
+  Downloading scikit_learn-0.24.2-cp39-cp39-manylinux2010_x86_64.whl.metadata (9.8 kB)
 
-Requirement already satisfied: numpy>=1.22.0 in /miniconda3/lib/python3.9/site-packages (from evidently) (1.24.1)
-2026-01-08T07:21:43.635Z
-Collecting opentelemetry-proto>=1.25.0 (from evidently)
-  Downloading opentelemetry_proto-1.39.1-py3-none-any.whl.metadata (2.3 kB)
+Collecting scikit-learn==0.24.2 (from -r /opt/ml/processing/code/requirements.txt (line 13)) Downloading scikit_learn-0.24.2-cp39-cp39-manylinux2010_x86_64.whl.metadata (9.8 kB)
+2026-01-08T08:56:53.143Z
+Collecting matplotlib==3.3.4 (from -r /opt/ml/processing/code/requirements.txt (line 14))
+  Downloading matplotlib-3.3.4-cp39-cp39-manylinux1_x86_64.whl.metadata (5.7 kB)
 
-Collecting opentelemetry-proto>=1.25.0 (from evidently) Downloading opentelemetry_proto-1.39.1-py3-none-any.whl.metadata (2.3 kB)
-2026-01-08T07:21:43.635Z
-Collecting pandas>=1.3.5 (from pandas[parquet]>=1.3.5->evidently)
-  Downloading pandas-2.3.3-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (91 kB)
+Collecting matplotlib==3.3.4 (from -r /opt/ml/processing/code/requirements.txt (line 14)) Downloading matplotlib-3.3.4-cp39-cp39-manylinux1_x86_64.whl.metadata (5.7 kB)
+2026-01-08T08:56:53.143Z
+Collecting plotly==5.13.1 (from -r /opt/ml/processing/code/requirements.txt (line 15))
+  Downloading plotly-5.13.1-py2.py3-none-any.whl.metadata (7.0 kB)
 
-Collecting pandas>=1.3.5 (from pandas[parquet]>=1.3.5->evidently) Downloading pandas-2.3.3-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (91 kB)
-2026-01-08T07:21:43.635Z
-Collecting plotly<6,>=5.10.0 (from evidently)
-  Downloading plotly-5.24.1-py3-none-any.whl.metadata (7.3 kB)
+Collecting plotly==5.13.1 (from -r /opt/ml/processing/code/requirements.txt (line 15)) Downloading plotly-5.13.1-py2.py3-none-any.whl.metadata (7.0 kB)
+2026-01-08T08:56:53.143Z
+Collecting evidently==0.6.3 (from -r /opt/ml/processing/code/requirements.txt (line 16))
+  Downloading evidently-0.6.3-py3-none-any.whl.metadata (11 kB)
 
-Collecting plotly<6,>=5.10.0 (from evidently) Downloading plotly-5.24.1-py3-none-any.whl.metadata (7.3 kB)
-2026-01-08T07:21:43.635Z
-Collecting pydantic>=1.10.16 (from evidently)
-  Downloading pydantic-2.12.5-py3-none-any.whl.metadata (90 kB)
+Collecting evidently==0.6.3 (from -r /opt/ml/processing/code/requirements.txt (line 16)) Downloading evidently-0.6.3-py3-none-any.whl.metadata (11 kB)
+2026-01-08T08:56:53.143Z
+Collecting uvicorn==0.22.0 (from uvicorn[standard]==0.22.0->-r /opt/ml/processing/code/requirements.txt (line 17))
+  Downloading uvicorn-0.22.0-py3-none-any.whl.metadata (6.3 kB)
 
-Collecting pydantic>=1.10.16 (from evidently) Downloading pydantic-2.12.5-py3-none-any.whl.metadata (90 kB)
-2026-01-08T07:21:43.635Z
-Collecting pyyaml>=5.4 (from evidently)
-  Downloading pyyaml-6.0.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting uvicorn==0.22.0 (from uvicorn[standard]==0.22.0->-r /opt/ml/processing/code/requirements.txt (line 17)) Downloading uvicorn-0.22.0-py3-none-any.whl.metadata (6.3 kB)
+2026-01-08T08:56:53.143Z
+Collecting watchdog==2.3.1 (from -r /opt/ml/processing/code/requirements.txt (line 18))
+  Downloading watchdog-2.3.1-py3-none-manylinux2014_x86_64.whl.metadata (36 kB)
 
-Collecting pyyaml>=5.4 (from evidently) Downloading pyyaml-6.0.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
-2026-01-08T07:21:43.635Z
-Requirement already satisfied: requests>=2.32.0 in /miniconda3/lib/python3.9/site-packages (from evidently) (2.32.3)
+Collecting watchdog==2.3.1 (from -r /opt/ml/processing/code/requirements.txt (line 18)) Downloading watchdog-2.3.1-py3-none-manylinux2014_x86_64.whl.metadata (36 kB)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: pytz>=2017.2 in /miniconda3/lib/python3.9/site-packages (from pandas==1.1.3->-r /opt/ml/processing/code/requirements.txt (line 5)) (2025.2)
 
-Requirement already satisfied: requests>=2.32.0 in /miniconda3/lib/python3.9/site-packages (from evidently) (2.32.3)
-2026-01-08T07:21:43.635Z
-Collecting rich>=13 (from evidently)
-  Downloading rich-14.2.0-py3-none-any.whl.metadata (18 kB)
+Requirement already satisfied: pytz>=2017.2 in /miniconda3/lib/python3.9/site-packages (from pandas==1.1.3->-r /opt/ml/processing/code/requirements.txt (line 5)) (2025.2)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: six>=1.5 in /miniconda3/lib/python3.9/site-packages (from python-dateutil==2.8.1->-r /opt/ml/processing/code/requirements.txt (line 8)) (1.15.0)
 
-Collecting rich>=13 (from evidently) Downloading rich-14.2.0-py3-none-any.whl.metadata (18 kB)
-2026-01-08T07:21:43.635Z
-Requirement already satisfied: scikit-learn>=1.1.1 in /miniconda3/lib/python3.9/site-packages (from evidently) (1.2.1)
+Requirement already satisfied: six>=1.5 in /miniconda3/lib/python3.9/site-packages (from python-dateutil==2.8.1->-r /opt/ml/processing/code/requirements.txt (line 8)) (1.15.0)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: joblib>=0.11 in /miniconda3/lib/python3.9/site-packages (from scikit-learn==0.24.2->-r /opt/ml/processing/code/requirements.txt (line 13)) (1.5.1)
 
-Requirement already satisfied: scikit-learn>=1.1.1 in /miniconda3/lib/python3.9/site-packages (from evidently) (1.2.1)
-2026-01-08T07:21:43.635Z
-Collecting scipy>=1.10.0 (from evidently)
-  Downloading scipy-1.13.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (60 kB)
+Requirement already satisfied: joblib>=0.11 in /miniconda3/lib/python3.9/site-packages (from scikit-learn==0.24.2->-r /opt/ml/processing/code/requirements.txt (line 13)) (1.5.1)
+2026-01-08T08:56:53.143Z
+Requirement already satisfied: threadpoolctl>=2.0.0 in /miniconda3/lib/python3.9/site-packages (from scikit-learn==0.24.2->-r /opt/ml/processing/code/requirements.txt (line 13)) (3.6.0)
 
-Collecting scipy>=1.10.0 (from evidently) Downloading scipy-1.13.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (60 kB)
-2026-01-08T07:21:43.635Z
-Collecting statsmodels>=0.12.2 (from evidently)
-  Downloading statsmodels-0.14.6-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.5 kB)
+Requirement already satisfied: threadpoolctl>=2.0.0 in /miniconda3/lib/python3.9/site-packages (from scikit-learn==0.24.2->-r /opt/ml/processing/code/requirements.txt (line 13)) (3.6.0)
+2026-01-08T08:56:53.144Z
+Collecting cycler>=0.10 (from matplotlib==3.3.4->-r /opt/ml/processing/code/requirements.txt (line 14))
+  Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
 
-Collecting statsmodels>=0.12.2 (from evidently) Downloading statsmodels-0.14.6-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.5 kB)
-2026-01-08T07:21:43.635Z
-Collecting typer>=0.3 (from evidently)
-  Downloading typer-0.21.1-py3-none-any.whl.metadata (16 kB)
+Collecting cycler>=0.10 (from matplotlib==3.3.4->-r /opt/ml/processing/code/requirements.txt (line 14)) Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+2026-01-08T08:56:54.144Z
+Collecting kiwisolver>=1.0.1 (from matplotlib==3.3.4->-r /opt/ml/processing/code/requirements.txt (line 14))
+  Downloading kiwisolver-1.4.7-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl.metadata (6.3 kB)
 
-Collecting typer>=0.3 (from evidently) Downloading typer-0.21.1-py3-none-any.whl.metadata (16 kB)
-2026-01-08T07:21:43.635Z
-Collecting typing-inspect>=0.9.0 (from evidently)
-  Downloading typing_inspect-0.9.0-py3-none-any.whl.metadata (1.5 kB)
+Collecting kiwisolver>=1.0.1 (from matplotlib==3.3.4->-r /opt/ml/processing/code/requirements.txt (line 14)) Downloading kiwisolver-1.4.7-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl.metadata (6.3 kB)
+2026-01-08T08:56:54.144Z
+Requirement already satisfied: pillow>=6.2.0 in /miniconda3/lib/python3.9/site-packages (from matplotlib==3.3.4->-r /opt/ml/processing/code/requirements.txt (line 14)) (11.3.0)
 
-Collecting typing-inspect>=0.9.0 (from evidently) Downloading typing_inspect-0.9.0-py3-none-any.whl.metadata (1.5 kB)
-2026-01-08T07:21:43.635Z
-Collecting ujson>=5.4.0 (from evidently)
-  Downloading ujson-5.11.0-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (9.4 kB)
+Requirement already satisfied: pillow>=6.2.0 in /miniconda3/lib/python3.9/site-packages (from matplotlib==3.3.4->-r /opt/ml/processing/code/requirements.txt (line 14)) (11.3.0)
+2026-01-08T08:56:54.144Z
+Collecting pyparsing!=2.0.4,!=2.1.2,!=2.1.6,>=2.0.3 (from matplotlib==3.3.4->-r /opt/ml/processing/code/requirements.txt (line 14))
+  Downloading pyparsing-3.3.1-py3-none-any.whl.metadata (5.6 kB)
 
-Collecting ujson>=5.4.0 (from evidently) Downloading ujson-5.11.0-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (9.4 kB)
-2026-01-08T07:21:43.635Z
-Collecting urllib3>=1.26.19 (from evidently)
-  Downloading urllib3-2.6.3-py3-none-any.whl.metadata (6.9 kB)
-
-Collecting urllib3>=1.26.19 (from evidently) Downloading urllib3-2.6.3-py3-none-any.whl.metadata (6.9 kB)
-2026-01-08T07:21:43.635Z
-Collecting uuid6>=2024.7.10 (from evidently)
-  Downloading uuid6-2025.0.1-py3-none-any.whl.metadata (10 kB)
-
-Collecting uuid6>=2024.7.10 (from evidently) Downloading uuid6-2025.0.1-py3-none-any.whl.metadata (10 kB)
-2026-01-08T07:21:43.635Z
-Collecting uvicorn>=0.22.0 (from uvicorn[standard]>=0.22.0->evidently)
-  Downloading uvicorn-0.39.0-py3-none-any.whl.metadata (6.8 kB)
-
-Collecting uvicorn>=0.22.0 (from uvicorn[standard]>=0.22.0->evidently) Downloading uvicorn-0.39.0-py3-none-any.whl.metadata (6.8 kB)
-2026-01-08T07:21:43.636Z
-Collecting watchdog>=3.0.0 (from evidently)
-  Downloading watchdog-6.0.0-py3-none-manylinux2014_x86_64.whl.metadata (44 kB)
-
-Collecting watchdog>=3.0.0 (from evidently) Downloading watchdog-6.0.0-py3-none-manylinux2014_x86_64.whl.metadata (44 kB)
-2026-01-08T07:21:43.636Z
-Collecting tenacity>=6.2.0 (from plotly<6,>=5.10.0->evidently)
+Collecting pyparsing!=2.0.4,!=2.1.2,!=2.1.6,>=2.0.3 (from matplotlib==3.3.4->-r /opt/ml/processing/code/requirements.txt (line 14)) Downloading pyparsing-3.3.1-py3-none-any.whl.metadata (5.6 kB)
+2026-01-08T08:56:54.144Z
+Collecting tenacity>=6.2.0 (from plotly==5.13.1->-r /opt/ml/processing/code/requirements.txt (line 15))
   Downloading tenacity-9.1.2-py3-none-any.whl.metadata (1.2 kB)
 
-Collecting tenacity>=6.2.0 (from plotly<6,>=5.10.0->evidently) Downloading tenacity-9.1.2-py3-none-any.whl.metadata (1.2 kB)
-2026-01-08T07:21:43.636Z
-Requirement already satisfied: packaging in /miniconda3/lib/python3.9/site-packages (from plotly<6,>=5.10.0->evidently) (24.1)
-
-Requirement already satisfied: packaging in /miniconda3/lib/python3.9/site-packages (from plotly<6,>=5.10.0->evidently) (24.1)
-2026-01-08T07:21:43.636Z
-Collecting cffi>=2.0.0 (from cryptography>=43.0.1->evidently)
-  Downloading cffi-2.0.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.6 kB)
-
-Collecting cffi>=2.0.0 (from cryptography>=43.0.1->evidently) Downloading cffi-2.0.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.6 kB)
-2026-01-08T07:21:43.636Z
-Collecting typing-extensions>=4.13.2 (from cryptography>=43.0.1->evidently)
-  Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
-
-Collecting typing-extensions>=4.13.2 (from cryptography>=43.0.1->evidently) Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
-2026-01-08T07:21:43.636Z
-Requirement already satisfied: pycparser in /miniconda3/lib/python3.9/site-packages (from cffi>=2.0.0->cryptography>=43.0.1->evidently) (2.21)
-
-Requirement already satisfied: pycparser in /miniconda3/lib/python3.9/site-packages (from cffi>=2.0.0->cryptography>=43.0.1->evidently) (2.21)
-2026-01-08T07:21:43.636Z
-Collecting appdirs (from iterative-telemetry>=0.0.5->evidently)
-  Downloading appdirs-1.4.4-py2.py3-none-any.whl.metadata (9.0 kB)
-
-Collecting appdirs (from iterative-telemetry>=0.0.5->evidently) Downloading appdirs-1.4.4-py2.py3-none-any.whl.metadata (9.0 kB)
-2026-01-08T07:21:43.636Z
-Collecting filelock (from iterative-telemetry>=0.0.5->evidently)
-  Downloading filelock-3.19.1-py3-none-any.whl.metadata (2.1 kB)
-
-Collecting filelock (from iterative-telemetry>=0.0.5->evidently) Downloading filelock-3.19.1-py3-none-any.whl.metadata (2.1 kB)
-2026-01-08T07:21:43.636Z
-Requirement already satisfied: distro in /miniconda3/lib/python3.9/site-packages (from iterative-telemetry>=0.0.5->evidently) (1.9.0)
-
-Requirement already satisfied: distro in /miniconda3/lib/python3.9/site-packages (from iterative-telemetry>=0.0.5->evidently) (1.9.0)
-2026-01-08T07:21:43.636Z
-Collecting anyio>=3 (from litestar>=2.19.0->evidently)
-  Downloading anyio-4.12.1-py3-none-any.whl.metadata (4.3 kB)
-
-Collecting anyio>=3 (from litestar>=2.19.0->evidently) Downloading anyio-4.12.1-py3-none-any.whl.metadata (4.3 kB)
-2026-01-08T07:21:43.636Z
-Requirement already satisfied: click in /miniconda3/lib/python3.9/site-packages (from litestar>=2.19.0->evidently) (8.1.8)
-
-Requirement already satisfied: click in /miniconda3/lib/python3.9/site-packages (from litestar>=2.19.0->evidently) (8.1.8)
-2026-01-08T07:21:43.636Z
-Collecting exceptiongroup (from litestar>=2.19.0->evidently)
-  Downloading exceptiongroup-1.3.1-py3-none-any.whl.metadata (6.7 kB)
-
-Collecting exceptiongroup (from litestar>=2.19.0->evidently) Downloading exceptiongroup-1.3.1-py3-none-any.whl.metadata (6.7 kB)
-2026-01-08T07:21:43.636Z
-Collecting httpx>=0.22 (from litestar>=2.19.0->evidently)
-  Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
-
-Collecting httpx>=0.22 (from litestar>=2.19.0->evidently) Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
-2026-01-08T07:21:43.636Z
-Collecting importlib-metadata (from litestar>=2.19.0->evidently)
-  Downloading importlib_metadata-8.7.1-py3-none-any.whl.metadata (4.7 kB)
-
-Collecting importlib-metadata (from litestar>=2.19.0->evidently) Downloading importlib_metadata-8.7.1-py3-none-any.whl.metadata (4.7 kB)
-2026-01-08T07:21:43.636Z
-Collecting litestar-htmx>=0.4.0 (from litestar>=2.19.0->evidently)
-  Downloading litestar_htmx-0.5.0-py3-none-any.whl.metadata (1.9 kB)
-
-Collecting litestar-htmx>=0.4.0 (from litestar>=2.19.0->evidently) Downloading litestar_htmx-0.5.0-py3-none-any.whl.metadata (1.9 kB)
-2026-01-08T07:21:43.636Z
-Collecting msgspec>=0.18.2 (from litestar>=2.19.0->evidently)
-  Downloading msgspec-0.20.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.5 kB)
-
-Collecting msgspec>=0.18.2 (from litestar>=2.19.0->evidently) Downloading msgspec-0.20.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.5 kB)
-2026-01-08T07:21:43.636Z
-Collecting multidict>=6.0.2 (from litestar>=2.19.0->evidently)
-  Downloading multidict-6.7.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.3 kB)
-
-Collecting multidict>=6.0.2 (from litestar>=2.19.0->evidently) Downloading multidict-6.7.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.3 kB)
-2026-01-08T07:21:43.636Z
-Collecting multipart>=1.2.0 (from litestar>=2.19.0->evidently)
-  Downloading multipart-1.3.0-py3-none-any.whl.metadata (4.9 kB)
-
-Collecting multipart>=1.2.0 (from litestar>=2.19.0->evidently) Downloading multipart-1.3.0-py3-none-any.whl.metadata (4.9 kB)
-2026-01-08T07:21:43.636Z
-Collecting polyfactory>=2.6.3 (from litestar>=2.19.0->evidently)
-  Downloading polyfactory-3.2.0-py3-none-any.whl.metadata (27 kB)
-
-Collecting polyfactory>=2.6.3 (from litestar>=2.19.0->evidently) Downloading polyfactory-3.2.0-py3-none-any.whl.metadata (27 kB)
-2026-01-08T07:21:43.636Z
-Collecting rich-click (from litestar>=2.19.0->evidently)
-  Downloading rich_click-1.9.5-py3-none-any.whl.metadata (8.7 kB)
-
-Collecting rich-click (from litestar>=2.19.0->evidently) Downloading rich_click-1.9.5-py3-none-any.whl.metadata (8.7 kB)
-2026-01-08T07:21:43.636Z
-Collecting sniffio>=1.3.1 (from litestar>=2.19.0->evidently)
-  Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
-
-Collecting sniffio>=1.3.1 (from litestar>=2.19.0->evidently) Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
-2026-01-08T07:21:43.636Z
-Requirement already satisfied: idna>=2.8 in /miniconda3/lib/python3.9/site-packages (from anyio>=3->litestar>=2.19.0->evidently) (3.7)
-
-Requirement already satisfied: idna>=2.8 in /miniconda3/lib/python3.9/site-packages (from anyio>=3->litestar>=2.19.0->evidently) (3.7)
-2026-01-08T07:21:43.637Z
-Collecting httpcore==1.* (from httpx>=0.22->litestar>=2.19.0->evidently)
-  Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
-
-Collecting httpcore==1.* (from httpx>=0.22->litestar>=2.19.0->evidently) Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
-2026-01-08T07:21:43.637Z
-Collecting h11>=0.16 (from httpcore==1.*->httpx>=0.22->litestar>=2.19.0->evidently)
-  Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
-
-Collecting h11>=0.16 (from httpcore==1.*->httpx>=0.22->litestar>=2.19.0->evidently) Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
-2026-01-08T07:21:43.637Z
-Requirement already satisfied: joblib in /miniconda3/lib/python3.9/site-packages (from nltk>=3.6.7->evidently) (1.5.1)
-
-Requirement already satisfied: joblib in /miniconda3/lib/python3.9/site-packages (from nltk>=3.6.7->evidently) (1.5.1)
-2026-01-08T07:21:43.637Z
-Collecting regex>=2021.8.3 (from nltk>=3.6.7->evidently)
-  Downloading regex-2025.11.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
-
-Collecting regex>=2021.8.3 (from nltk>=3.6.7->evidently) Downloading regex-2025.11.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
-2026-01-08T07:21:43.637Z
-Requirement already satisfied: tqdm in /miniconda3/lib/python3.9/site-packages (from nltk>=3.6.7->evidently) (4.66.4)
-
-Requirement already satisfied: tqdm in /miniconda3/lib/python3.9/site-packages (from nltk>=3.6.7->evidently) (4.66.4)
-2026-01-08T07:21:43.637Z
-Collecting protobuf<7.0,>=5.0 (from opentelemetry-proto>=1.25.0->evidently)
-  Downloading protobuf-6.33.2-cp39-abi3-manylinux2014_x86_64.whl.metadata (593 bytes)
-
-Collecting protobuf<7.0,>=5.0 (from opentelemetry-proto>=1.25.0->evidently) Downloading protobuf-6.33.2-cp39-abi3-manylinux2014_x86_64.whl.metadata (593 bytes)
-2026-01-08T07:21:43.637Z
-Collecting python-dateutil>=2.8.2 (from pandas>=1.3.5->pandas[parquet]>=1.3.5->evidently)
-  Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
-
-Collecting python-dateutil>=2.8.2 (from pandas>=1.3.5->pandas[parquet]>=1.3.5->evidently) Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
-2026-01-08T07:21:43.637Z
-Requirement already satisfied: pytz>=2020.1 in /miniconda3/lib/python3.9/site-packages (from pandas>=1.3.5->pandas[parquet]>=1.3.5->evidently) (2025.2)
-
-Requirement already satisfied: pytz>=2020.1 in /miniconda3/lib/python3.9/site-packages (from pandas>=1.3.5->pandas[parquet]>=1.3.5->evidently) (2025.2)
-2026-01-08T07:21:43.637Z
-Collecting tzdata>=2022.7 (from pandas>=1.3.5->pandas[parquet]>=1.3.5->evidently)
-  Downloading tzdata-2025.3-py2.py3-none-any.whl.metadata (1.4 kB)
-
-Collecting tzdata>=2022.7 (from pandas>=1.3.5->pandas[parquet]>=1.3.5->evidently) Downloading tzdata-2025.3-py2.py3-none-any.whl.metadata (1.4 kB)
-2026-01-08T07:21:43.637Z
-Requirement already satisfied: pyarrow>=10.0.1 in /miniconda3/lib/python3.9/site-packages (from pandas[parquet]>=1.3.5->evidently) (14.0.1)
-
-Requirement already satisfied: pyarrow>=10.0.1 in /miniconda3/lib/python3.9/site-packages (from pandas[parquet]>=1.3.5->evidently) (14.0.1)
-2026-01-08T07:21:43.637Z
-Collecting faker>=5.0.0 (from polyfactory>=2.6.3->litestar>=2.19.0->evidently)
-  Downloading faker-37.12.0-py3-none-any.whl.metadata (15 kB)
-
-Collecting faker>=5.0.0 (from polyfactory>=2.6.3->litestar>=2.19.0->evidently) Downloading faker-37.12.0-py3-none-any.whl.metadata (15 kB)
-2026-01-08T07:21:43.637Z
-Collecting annotated-types>=0.6.0 (from pydantic>=1.10.16->evidently)
-  Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
-
-Collecting annotated-types>=0.6.0 (from pydantic>=1.10.16->evidently) Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
-2026-01-08T07:21:44.637Z
-Collecting pydantic-core==2.41.5 (from pydantic>=1.10.16->evidently)
-  Downloading pydantic_core-2.41.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)
-
-Collecting pydantic-core==2.41.5 (from pydantic>=1.10.16->evidently) Downloading pydantic_core-2.41.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)
-2026-01-08T07:21:45.638Z
-Collecting typing-inspection>=0.4.2 (from pydantic>=1.10.16->evidently)
-  Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
-
-Collecting typing-inspection>=0.4.2 (from pydantic>=1.10.16->evidently) Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
-2026-01-08T07:21:45.638Z
-Requirement already satisfied: six>=1.5 in /miniconda3/lib/python3.9/site-packages (from python-dateutil>=2.8.2->pandas>=1.3.5->pandas[parquet]>=1.3.5->evidently) (1.15.0)
-
-Requirement already satisfied: six>=1.5 in /miniconda3/lib/python3.9/site-packages (from python-dateutil>=2.8.2->pandas>=1.3.5->pandas[parquet]>=1.3.5->evidently) (1.15.0)
-2026-01-08T07:21:45.638Z
-Requirement already satisfied: charset-normalizer<4,>=2 in /miniconda3/lib/python3.9/site-packages (from requests>=2.32.0->evidently) (3.3.2)
-
-Requirement already satisfied: charset-normalizer<4,>=2 in /miniconda3/lib/python3.9/site-packages (from requests>=2.32.0->evidently) (3.3.2)
-2026-01-08T07:21:45.638Z
-Collecting markdown-it-py>=2.2.0 (from rich>=13->evidently)
-  Downloading markdown_it_py-3.0.0-py3-none-any.whl.metadata (6.9 kB)
-
-Collecting markdown-it-py>=2.2.0 (from rich>=13->evidently) Downloading markdown_it_py-3.0.0-py3-none-any.whl.metadata (6.9 kB)
-2026-01-08T07:21:45.638Z
-Collecting pygments<3.0.0,>=2.13.0 (from rich>=13->evidently)
-  Downloading pygments-2.19.2-py3-none-any.whl.metadata (2.5 kB)
-
-Collecting pygments<3.0.0,>=2.13.0 (from rich>=13->evidently) Downloading pygments-2.19.2-py3-none-any.whl.metadata (2.5 kB)
-2026-01-08T07:21:45.638Z
-Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13->evidently)
-  Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
-
-Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13->evidently) Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
-2026-01-08T07:21:45.638Z
-Requirement already satisfied: threadpoolctl>=2.0.0 in /miniconda3/lib/python3.9/site-packages (from scikit-learn>=1.1.1->evidently) (3.6.0)
-
-Requirement already satisfied: threadpoolctl>=2.0.0 in /miniconda3/lib/python3.9/site-packages (from scikit-learn>=1.1.1->evidently) (3.6.0)
-2026-01-08T07:21:45.638Z
-Collecting patsy>=0.5.6 (from statsmodels>=0.12.2->evidently)
-  Downloading patsy-1.0.2-py2.py3-none-any.whl.metadata (3.6 kB)
-
-Collecting patsy>=0.5.6 (from statsmodels>=0.12.2->evidently) Downloading patsy-1.0.2-py2.py3-none-any.whl.metadata (3.6 kB)
-2026-01-08T07:21:45.638Z
-Collecting shellingham>=1.3.0 (from typer>=0.3->evidently)
-  Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
-
-Collecting shellingham>=1.3.0 (from typer>=0.3->evidently) Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
-2026-01-08T07:21:45.638Z
-Collecting mypy-extensions>=0.3.0 (from typing-inspect>=0.9.0->evidently)
-  Downloading mypy_extensions-1.1.0-py3-none-any.whl.metadata (1.1 kB)
-
-Collecting mypy-extensions>=0.3.0 (from typing-inspect>=0.9.0->evidently) Downloading mypy_extensions-1.1.0-py3-none-any.whl.metadata (1.1 kB)
-2026-01-08T07:21:45.638Z
-Collecting httptools>=0.6.3 (from uvicorn[standard]>=0.22.0->evidently)
-  Downloading httptools-0.7.1-cp39-cp39-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
-
-Collecting httptools>=0.6.3 (from uvicorn[standard]>=0.22.0->evidently) Downloading httptools-0.7.1-cp39-cp39-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
-2026-01-08T07:21:45.638Z
-Collecting python-dotenv>=0.13 (from uvicorn[standard]>=0.22.0->evidently)
-  Downloading python_dotenv-1.2.1-py3-none-any.whl.metadata (25 kB)
-
-Collecting python-dotenv>=0.13 (from uvicorn[standard]>=0.22.0->evidently) Downloading python_dotenv-1.2.1-py3-none-any.whl.metadata (25 kB)
-2026-01-08T07:21:45.638Z
-Collecting uvloop>=0.15.1 (from uvicorn[standard]>=0.22.0->evidently)
-  Downloading uvloop-0.22.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (4.9 kB)
-
-Collecting uvloop>=0.15.1 (from uvicorn[standard]>=0.22.0->evidently) Downloading uvloop-0.22.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (4.9 kB)
-2026-01-08T07:21:45.638Z
-Collecting watchfiles>=0.13 (from uvicorn[standard]>=0.22.0->evidently)
-  Downloading watchfiles-1.1.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
-
-Collecting watchfiles>=0.13 (from uvicorn[standard]>=0.22.0->evidently) Downloading watchfiles-1.1.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
-2026-01-08T07:21:45.638Z
-Collecting websockets>=10.4 (from uvicorn[standard]>=0.22.0->evidently)
-  Downloading websockets-15.0.1-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.8 kB)
-
-Collecting websockets>=10.4 (from uvicorn[standard]>=0.22.0->evidently) Downloading websockets-15.0.1-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.8 kB)
-2026-01-08T07:21:45.638Z
-Collecting zipp>=3.20 (from importlib-metadata->litestar>=2.19.0->evidently)
-  Downloading zipp-3.23.0-py3-none-any.whl.metadata (3.6 kB)
-
-Collecting zipp>=3.20 (from importlib-metadata->litestar>=2.19.0->evidently) Downloading zipp-3.23.0-py3-none-any.whl.metadata (3.6 kB)
-2026-01-08T07:21:45.638Z
-Downloading evidently-0.7.19-py3-none-any.whl (11.7 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.7/11.7 MB 184.9 MB/s  0:00:00
-
-Downloading evidently-0.7.19-py3-none-any.whl (11.7 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.7/11.7 MB 184.9 MB/s 0:00:00
-2026-01-08T07:21:45.638Z
-Downloading plotly-5.24.1-py3-none-any.whl (19.1 MB)
-
-Downloading plotly-5.24.1-py3-none-any.whl (19.1 MB)
-2026-01-08T07:21:46.639Z
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 19.1/19.1 MB 151.4 MB/s  0:00:00
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 19.1/19.1 MB 151.4 MB/s 0:00:00
-2026-01-08T07:21:46.639Z
-Downloading cryptography-46.0.3-cp38-abi3-manylinux_2_28_x86_64.whl (4.5 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 115.2 MB/s  0:00:00
-
-Downloading cryptography-46.0.3-cp38-abi3-manylinux_2_28_x86_64.whl (4.5 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 115.2 MB/s 0:00:00
-2026-01-08T07:21:46.639Z
-Downloading cffi-2.0.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (216 kB)
-
-Downloading cffi-2.0.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (216 kB)
-2026-01-08T07:21:46.639Z
-Downloading deprecation-2.1.0-py2.py3-none-any.whl (11 kB)
-
-Downloading deprecation-2.1.0-py2.py3-none-any.whl (11 kB)
-2026-01-08T07:21:46.639Z
-Downloading dynaconf-3.2.12-py2.py3-none-any.whl (237 kB)
-
-Downloading dynaconf-3.2.12-py2.py3-none-any.whl (237 kB)
-2026-01-08T07:21:46.639Z
-Downloading fsspec-2025.10.0-py3-none-any.whl (200 kB)
-
-Downloading fsspec-2025.10.0-py3-none-any.whl (200 kB)
-2026-01-08T07:21:46.639Z
-Downloading iterative_telemetry-0.0.10-py3-none-any.whl (10 kB)
-
-Downloading iterative_telemetry-0.0.10-py3-none-any.whl (10 kB)
-2026-01-08T07:21:46.639Z
-Downloading litestar-2.19.0-py3-none-any.whl (565 kB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 565.7/565.7 kB 29.2 MB/s  0:00:00
-
-Downloading litestar-2.19.0-py3-none-any.whl (565 kB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 565.7/565.7 kB 29.2 MB/s 0:00:00
-2026-01-08T07:21:46.639Z
-Downloading anyio-4.12.1-py3-none-any.whl (113 kB)
-
-Downloading anyio-4.12.1-py3-none-any.whl (113 kB)
-2026-01-08T07:21:46.639Z
-Downloading exceptiongroup-1.3.1-py3-none-any.whl (16 kB)
-
-Downloading exceptiongroup-1.3.1-py3-none-any.whl (16 kB)
-2026-01-08T07:21:46.639Z
-Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
-
-Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
-2026-01-08T07:21:46.639Z
-Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
-
-Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
-2026-01-08T07:21:46.639Z
-Downloading h11-0.16.0-py3-none-any.whl (37 kB)
-
-Downloading h11-0.16.0-py3-none-any.whl (37 kB)
-2026-01-08T07:21:46.639Z
-Downloading litestar_htmx-0.5.0-py3-none-any.whl (10.0 kB)
-
-Downloading litestar_htmx-0.5.0-py3-none-any.whl (10.0 kB)
-2026-01-08T07:21:46.639Z
-Downloading msgspec-0.20.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (222 kB)
-
-Downloading msgspec-0.20.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (222 kB)
-2026-01-08T07:21:46.640Z
-Downloading multidict-6.7.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (239 kB)
-
-Downloading multidict-6.7.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (239 kB)
-2026-01-08T07:21:46.640Z
-Downloading multipart-1.3.0-py3-none-any.whl (14 kB)
-
-Downloading multipart-1.3.0-py3-none-any.whl (14 kB)
-2026-01-08T07:21:46.640Z
-Downloading nltk-3.9.2-py3-none-any.whl (1.5 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.5/1.5 MB 70.5 MB/s  0:00:00
-
-Downloading nltk-3.9.2-py3-none-any.whl (1.5 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.5/1.5 MB 70.5 MB/s 0:00:00
-2026-01-08T07:21:46.640Z
-Downloading opentelemetry_proto-1.39.1-py3-none-any.whl (72 kB)
-
-Downloading opentelemetry_proto-1.39.1-py3-none-any.whl (72 kB)
-2026-01-08T07:21:46.640Z
-Downloading protobuf-6.33.2-cp39-abi3-manylinux2014_x86_64.whl (323 kB)
-
-Downloading protobuf-6.33.2-cp39-abi3-manylinux2014_x86_64.whl (323 kB)
-2026-01-08T07:21:46.640Z
-Downloading pandas-2.3.3-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.8 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.8/12.8 MB 145.8 MB/s  0:00:00
-
-Downloading pandas-2.3.3-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.8 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.8/12.8 MB 145.8 MB/s 0:00:00
-2026-01-08T07:21:46.640Z
-Downloading polyfactory-3.2.0-py3-none-any.whl (62 kB)
-
-Downloading polyfactory-3.2.0-py3-none-any.whl (62 kB)
-2026-01-08T07:21:46.640Z
-Downloading faker-37.12.0-py3-none-any.whl (2.0 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 106.8 MB/s  0:00:00
-
-Downloading faker-37.12.0-py3-none-any.whl (2.0 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 106.8 MB/s 0:00:00
-2026-01-08T07:21:46.640Z
-Downloading pydantic-2.12.5-py3-none-any.whl (463 kB)
-
-Downloading pydantic-2.12.5-py3-none-any.whl (463 kB)
-2026-01-08T07:21:46.640Z
-Downloading pydantic_core-2.41.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 115.9 MB/s  0:00:00
-
-Downloading pydantic_core-2.41.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 115.9 MB/s 0:00:00
-2026-01-08T07:21:46.640Z
-Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
-
-Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
-2026-01-08T07:21:46.640Z
-Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
-
-Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
-2026-01-08T07:21:46.640Z
-Downloading pyyaml-6.0.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (750 kB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 750.8/750.8 kB 40.7 MB/s  0:00:00
-
-Downloading pyyaml-6.0.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (750 kB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 750.8/750.8 kB 40.7 MB/s 0:00:00
-2026-01-08T07:21:46.640Z
-Downloading regex-2025.11.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (791 kB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 791.2/791.2 kB 56.1 MB/s  0:00:00
-
-Downloading regex-2025.11.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (791 kB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 791.2/791.2 kB 56.1 MB/s 0:00:00
-2026-01-08T07:21:46.640Z
-Downloading urllib3-2.6.3-py3-none-any.whl (131 kB)
-
-Downloading urllib3-2.6.3-py3-none-any.whl (131 kB)
-2026-01-08T07:21:46.640Z
-Downloading rich-14.2.0-py3-none-any.whl (243 kB)
-
-Downloading rich-14.2.0-py3-none-any.whl (243 kB)
-2026-01-08T07:21:46.640Z
-Downloading pygments-2.19.2-py3-none-any.whl (1.2 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 66.3 MB/s  0:00:00
-
-Downloading pygments-2.19.2-py3-none-any.whl (1.2 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 66.3 MB/s 0:00:00
-2026-01-08T07:21:46.640Z
-Downloading markdown_it_py-3.0.0-py3-none-any.whl (87 kB)
-
-Downloading markdown_it_py-3.0.0-py3-none-any.whl (87 kB)
-2026-01-08T07:21:46.640Z
-Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
-
-Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
-2026-01-08T07:21:46.640Z
-Downloading scipy-1.13.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (38.6 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 38.6/38.6 MB 153.5 MB/s  0:00:00
-
-Downloading scipy-1.13.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (38.6 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 38.6/38.6 MB 153.5 MB/s 0:00:00
-2026-01-08T07:21:46.640Z
-Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
-
-Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
-2026-01-08T07:21:46.640Z
-Downloading statsmodels-0.14.6-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (10.4 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.4/10.4 MB 143.5 MB/s  0:00:00
-
-Downloading statsmodels-0.14.6-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (10.4 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.4/10.4 MB 143.5 MB/s 0:00:00
-2026-01-08T07:21:46.640Z
-Downloading patsy-1.0.2-py2.py3-none-any.whl (233 kB)
-
-Downloading patsy-1.0.2-py2.py3-none-any.whl (233 kB)
-2026-01-08T07:21:46.640Z
-Downloading tenacity-9.1.2-py3-none-any.whl (28 kB)
-
-Downloading tenacity-9.1.2-py3-none-any.whl (28 kB)
-2026-01-08T07:21:46.640Z
-Downloading typer-0.21.1-py3-none-any.whl (47 kB)
-
-Downloading typer-0.21.1-py3-none-any.whl (47 kB)
-2026-01-08T07:21:46.641Z
-Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
-
-Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
-2026-01-08T07:21:46.641Z
-Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
-
-Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
-2026-01-08T07:21:46.641Z
-Downloading typing_inspect-0.9.0-py3-none-any.whl (8.8 kB)
-
-Downloading typing_inspect-0.9.0-py3-none-any.whl (8.8 kB)
-2026-01-08T07:21:46.641Z
-Downloading mypy_extensions-1.1.0-py3-none-any.whl (5.0 kB)
-
-Downloading mypy_extensions-1.1.0-py3-none-any.whl (5.0 kB)
-2026-01-08T07:21:46.641Z
-Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
-
-Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
-2026-01-08T07:21:46.641Z
-Downloading tzdata-2025.3-py2.py3-none-any.whl (348 kB)
-
-Downloading tzdata-2025.3-py2.py3-none-any.whl (348 kB)
-2026-01-08T07:21:46.641Z
-Downloading ujson-5.11.0-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (57 kB)
-
-Downloading ujson-5.11.0-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (57 kB)
-2026-01-08T07:21:46.641Z
-Downloading uuid6-2025.0.1-py3-none-any.whl (7.0 kB)
-
-Downloading uuid6-2025.0.1-py3-none-any.whl (7.0 kB)
-2026-01-08T07:21:46.641Z
-Downloading uvicorn-0.39.0-py3-none-any.whl (68 kB)
-
-Downloading uvicorn-0.39.0-py3-none-any.whl (68 kB)
-2026-01-08T07:21:47.641Z
-Downloading httptools-0.7.1-cp39-cp39-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (441 kB)
-
-Downloading httptools-0.7.1-cp39-cp39-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (441 kB)
-2026-01-08T07:21:47.641Z
-Downloading python_dotenv-1.2.1-py3-none-any.whl (21 kB)
-
-Downloading python_dotenv-1.2.1-py3-none-any.whl (21 kB)
-2026-01-08T07:21:47.641Z
-Downloading uvloop-0.22.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.7 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.7/3.7 MB 107.4 MB/s  0:00:00
-
-Downloading uvloop-0.22.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.7 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.7/3.7 MB 107.4 MB/s 0:00:00
-2026-01-08T07:21:47.641Z
-Downloading watchdog-6.0.0-py3-none-manylinux2014_x86_64.whl (79 kB)
-
-Downloading watchdog-6.0.0-py3-none-manylinux2014_x86_64.whl (79 kB)
-2026-01-08T07:21:47.641Z
-Downloading watchfiles-1.1.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (457 kB)
-
-Downloading watchfiles-1.1.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (457 kB)
-2026-01-08T07:21:47.641Z
-Downloading websockets-15.0.1-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (181 kB)
-
-Downloading websockets-15.0.1-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (181 kB)
-2026-01-08T07:21:47.641Z
-Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
-
-Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
-2026-01-08T07:21:47.641Z
-Downloading filelock-3.19.1-py3-none-any.whl (15 kB)
-
-Downloading filelock-3.19.1-py3-none-any.whl (15 kB)
-2026-01-08T07:21:47.641Z
-Downloading importlib_metadata-8.7.1-py3-none-any.whl (27 kB)
-
-Downloading importlib_metadata-8.7.1-py3-none-any.whl (27 kB)
-2026-01-08T07:21:47.641Z
-Downloading zipp-3.23.0-py3-none-any.whl (10 kB)
-
-Downloading zipp-3.23.0-py3-none-any.whl (10 kB)
-2026-01-08T07:21:47.641Z
-Downloading rich_click-1.9.5-py3-none-any.whl (70 kB)
-
-Downloading rich_click-1.9.5-py3-none-any.whl (70 kB)
-2026-01-08T07:21:48.642Z
-Installing collected packages: appdirs, zipp, websockets, watchdog, uvloop, uuid6, urllib3, ujson, tzdata, typing-extensions, tenacity, sniffio, shellingham, scipy, regex, pyyaml, python-dotenv, python-dateutil, pygments, protobuf, patsy, mypy-extensions, multipart, msgspec, mdurl, litestar-htmx, httptools, h11, fsspec, filelock, dynaconf, deprecation, cffi, annotated-types, uvicorn, typing-inspection, typing-inspect, pydantic-core, plotly, pandas, opentelemetry-proto, nltk, multidict, markdown-it-py, importlib-metadata, httpcore, faker, exceptiongroup, cryptography, statsmodels, rich, pydantic, polyfactory, iterative-telemetry, anyio, watchfiles, typer, rich-click, httpx, litestar, evidently
-  Attempting uninstall: urllib3
-    Found existing installation: urllib3 1.26.17
-    Uninstalling urllib3-1.26.17:
-      Successfully uninstalled urllib3-1.26.17
-  Attempting uninstall: scipy
-    Found existing installation: scipy 1.8.0
-    Uninstalling scipy-1.8.0:
-
-Installing collected packages: appdirs, zipp, websockets, watchdog, uvloop, uuid6, urllib3, ujson, tzdata, typing-extensions, tenacity, sniffio, shellingham, scipy, regex, pyyaml, python-dotenv, python-dateutil, pygments, protobuf, patsy, mypy-extensions, multipart, msgspec, mdurl, litestar-htmx, httptools, h11, fsspec, filelock, dynaconf, deprecation, cffi, annotated-types, uvicorn, typing-inspection, typing-inspect, pydantic-core, plotly, pandas, opentelemetry-proto, nltk, multidict, markdown-it-py, importlib-metadata, httpcore, faker, exceptiongroup, cryptography, statsmodels, rich, pydantic, polyfactory, iterative-telemetry, anyio, watchfiles, typer, rich-click, httpx, litestar, evidently Attempting uninstall: urllib3 Found existing installation: urllib3 1.26.17 Uninstalling urllib3-1.26.17: Successfully uninstalled urllib3-1.26.17 Attempting uninstall: scipy Found existing installation: scipy 1.8.0 Uninstalling scipy-1.8.0:
-2026-01-08T07:21:49.642Z
-      Successfully uninstalled scipy-1.8.0
-
-Successfully uninstalled scipy-1.8.0
-2026-01-08T07:21:52.643Z
-  Attempting uninstall: python-dateutil
-    Found existing installation: python-dateutil 2.8.1
-    Uninstalling python-dateutil-2.8.1:
-      Successfully uninstalled python-dateutil-2.8.1
-
-Attempting uninstall: python-dateutil Found existing installation: python-dateutil 2.8.1 Uninstalling python-dateutil-2.8.1: Successfully uninstalled python-dateutil-2.8.1
-2026-01-08T07:21:53.644Z
-  Attempting uninstall: protobuf
-    Found existing installation: protobuf 3.20.2
-    Uninstalling protobuf-3.20.2:
-      Successfully uninstalled protobuf-3.20.2
-  Attempting uninstall: cffi
-    Found existing installation: cffi 1.16.0
-    Uninstalling cffi-1.16.0:
-
-Attempting uninstall: protobuf Found existing installation: protobuf 3.20.2 Uninstalling protobuf-3.20.2: Successfully uninstalled protobuf-3.20.2 Attempting uninstall: cffi Found existing installation: cffi 1.16.0 Uninstalling cffi-1.16.0:
-2026-01-08T07:21:54.644Z
-      Successfully uninstalled cffi-1.16.0
-
-Successfully uninstalled cffi-1.16.0
-2026-01-08T07:22:03.654Z
-  Attempting uninstall: pandas
-    Found existing installation: pandas 1.1.3
-    Uninstalling pandas-1.1.3:
-      Successfully uninstalled pandas-1.1.3
-
-Attempting uninstall: pandas Found existing installation: pandas 1.1.3 Uninstalling pandas-1.1.3: Successfully uninstalled pandas-1.1.3
-2026-01-08T07:22:10.656Z
-  Attempting uninstall: cryptography
-    Found existing installation: cryptography 42.0.5
-    Uninstalling cryptography-42.0.5:
-      Successfully uninstalled cryptography-42.0.5
-
-Attempting uninstall: cryptography Found existing installation: cryptography 42.0.5 Uninstalling cryptography-42.0.5: Successfully uninstalled cryptography-42.0.5
-2026-01-08T07:22:14.657Z
-ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
-
-ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
-2026-01-08T07:22:14.657Z
-botocore 1.31.85 requires urllib3<1.27,>=1.25.4; python_version < "3.10", but you have urllib3 2.6.3 which is incompatible.
-
-botocore 1.31.85 requires urllib3<1.27,>=1.25.4; python_version < "3.10", but you have urllib3 2.6.3 which is incompatible.
-2026-01-08T07:22:14.657Z
-sagemaker-sklearn-container 2.0 requires pandas==1.1.3, but you have pandas 2.3.3 which is incompatible.
-
-sagemaker-sklearn-container 2.0 requires pandas==1.1.3, but you have pandas 2.3.3 which is incompatible.
-2026-01-08T07:22:14.657Z
-sagemaker-sklearn-container 2.0 requires protobuf==3.20.2, but you have protobuf 6.33.2 which is incompatible.
-
-sagemaker-sklearn-container 2.0 requires protobuf==3.20.2, but you have protobuf 6.33.2 which is incompatible.
-2026-01-08T07:22:14.657Z
-sagemaker-sklearn-container 2.0 requires python-dateutil==2.8.1, but you have python-dateutil 2.9.0.post0 which is incompatible.
-
-sagemaker-sklearn-container 2.0 requires python-dateutil==2.8.1, but you have python-dateutil 2.9.0.post0 which is incompatible.
-2026-01-08T07:22:14.657Z
-sagemaker-sklearn-container 2.0 requires scipy==1.8.0, but you have scipy 1.13.1 which is incompatible.
-
-sagemaker-sklearn-container 2.0 requires scipy==1.8.0, but you have scipy 1.13.1 which is incompatible.
-2026-01-08T07:22:14.657Z
-sagemaker-sklearn-container 2.0 requires urllib3==1.26.17, but you have urllib3 2.6.3 which is incompatible.
-
-sagemaker-sklearn-container 2.0 requires urllib3==1.26.17, but you have urllib3 2.6.3 which is incompatible.
-2026-01-08T07:22:14.657Z
-sagemaker-training 4.8.0 requires protobuf<=3.20.3,>=3.9.2, but you have protobuf 6.33.2 which is incompatible.
-
-sagemaker-training 4.8.0 requires protobuf<=3.20.3,>=3.9.2, but you have protobuf 6.33.2 which is incompatible.
-2026-01-08T07:22:14.657Z
-Successfully installed annotated-types-0.7.0 anyio-4.12.1 appdirs-1.4.4 cffi-2.0.0 cryptography-46.0.3 deprecation-2.1.0 dynaconf-3.2.12 evidently-0.7.19 exceptiongroup-1.3.1 faker-37.12.0 filelock-3.19.1 fsspec-2025.10.0 h11-0.16.0 httpcore-1.0.9 httptools-0.7.1 httpx-0.28.1 importlib-metadata-8.7.1 iterative-telemetry-0.0.10 litestar-2.19.0 litestar-htmx-0.5.0 markdown-it-py-3.0.0 mdurl-0.1.2 msgspec-0.20.0 multidict-6.7.0 multipart-1.3.0 mypy-extensions-1.1.0 nltk-3.9.2 opentelemetry-proto-1.39.1 pandas-2.3.3 patsy-1.0.2 plotly-5.24.1 polyfactory-3.2.0 protobuf-6.33.2 pydantic-2.12.5 pydantic-core-2.41.5 pygments-2.19.2 python-dateutil-2.9.0.post0 python-dotenv-1.2.1 pyyaml-6.0.3 regex-2025.11.3 rich-14.2.0 rich-click-1.9.5 scipy-1.13.1 shellingham-1.5.4 sniffio-1.3.1 statsmodels-0.14.6 tenacity-9.1.2 typer-0.21.1 typing-extensions-4.15.0 typing-inspect-0.9.0 typing-inspection-0.4.2 tzdata-2025.3 ujson-5.11.0 urllib3-2.6.3 uuid6-2025.0.1 uvicorn-0.39.0 uvloop-0.22.1 watchdog-6.0.0 watchfiles-1.1.1 websockets-15.0.1 zipp-3.23.0
-
-Successfully installed annotated-types-0.7.0 anyio-4.12.1 appdirs-1.4.4 cffi-2.0.0 cryptography-46.0.3 deprecation-2.1.0 dynaconf-3.2.12 evidently-0.7.19 exceptiongroup-1.3.1 faker-37.12.0 filelock-3.19.1 fsspec-2025.10.0 h11-0.16.0 httpcore-1.0.9 httptools-0.7.1 httpx-0.28.1 importlib-metadata-8.7.1 iterative-telemetry-0.0.10 litestar-2.19.0 litestar-htmx-0.5.0 markdown-it-py-3.0.0 mdurl-0.1.2 msgspec-0.20.0 multidict-6.7.0 multipart-1.3.0 mypy-extensions-1.1.0 nltk-3.9.2 opentelemetry-proto-1.39.1 pandas-2.3.3 patsy-1.0.2 plotly-5.24.1 polyfactory-3.2.0 protobuf-6.33.2 pydantic-2.12.5 pydantic-core-2.41.5 pygments-2.19.2 python-dateutil-2.9.0.post0 python-dotenv-1.2.1 pyyaml-6.0.3 regex-2025.11.3 rich-14.2.0 rich-click-1.9.5 scipy-1.13.1 shellingham-1.5.4 sniffio-1.3.1 statsmodels-0.14.6 tenacity-9.1.2 typer-0.21.1 typing-extensions-4.15.0 typing-inspect-0.9.0 typing-inspection-0.4.2 tzdata-2025.3 ujson-5.11.0 urllib3-2.6.3 uuid6-2025.0.1 uvicorn-0.39.0 uvloop-0.22.1 watchdog-6.0.0 watchfiles-1.1.1 websockets-15.0.1 zipp-3.23.0
-2026-01-08T07:22:14.657Z
+Collecting tenacity>=6.2.0 (from plotly==5.13.1->-r /opt/ml/processing/code/requirements.txt (line 15)) Downloading tenacity-9.1.2-py3-none-any.whl.metadata (1.2 kB)
+2026-01-08T08:56:54.144Z
+Collecting statsmodels>=0.12.2 (from evidently==0.6.3->-r /opt/ml/processing/code/requirements.txt (line 16))
+  Downloading statsmodels-0.14.6-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.5 kB)
+
+Collecting statsmodels>=0.12.2 (from evidently==0.6.3->-r /opt/ml/processing/code/requirements.txt (line 16)) Downloading statsmodels-0.14.6-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.5 kB)
+2026-01-08T08:56:54.144Z
+INFO: pip is looking at multiple versions of evidently to determine which version is compatible with other requirements. This could take a while.
+
+INFO: pip is looking at multiple versions of evidently to determine which version is compatible with other requirements. This could take a while.
+2026-01-08T08:56:54.144Z
+Collecting pandas==1.1.3 (from -r /opt/ml/processing/code/requirements.txt (line 5))
+  Using cached pandas-1.1.3-cp39-cp39-manylinux1_x86_64.whl.metadata (4.7 kB)
+
+Collecting pandas==1.1.3 (from -r /opt/ml/processing/code/requirements.txt (line 5)) Using cached pandas-1.1.3-cp39-cp39-manylinux1_x86_64.whl.metadata (4.7 kB)
+2026-01-08T08:56:54.144Z
+Collecting urllib3==1.26.17 (from -r /opt/ml/processing/code/requirements.txt (line 9))
+  Using cached urllib3-1.26.17-py2.py3-none-any.whl.metadata (48 kB)
+
+Collecting urllib3==1.26.17 (from -r /opt/ml/processing/code/requirements.txt (line 9)) Using cached urllib3-1.26.17-py2.py3-none-any.whl.metadata (48 kB)
+2026-01-08T08:56:54.144Z
+Collecting python-dateutil==2.8.1 (from -r /opt/ml/processing/code/requirements.txt (line 8))
+  Using cached python_dateutil-2.8.1-py2.py3-none-any.whl.metadata (8.0 kB)
+
+Collecting python-dateutil==2.8.1 (from -r /opt/ml/processing/code/requirements.txt (line 8)) Using cached python_dateutil-2.8.1-py2.py3-none-any.whl.metadata (8.0 kB)
+2026-01-08T08:56:54.144Z
+Collecting protobuf==3.20.2 (from -r /opt/ml/processing/code/requirements.txt (line 7))
+  Using cached protobuf-3.20.2-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl.metadata (679 bytes)
+
+Collecting protobuf==3.20.2 (from -r /opt/ml/processing/code/requirements.txt (line 7)) Using cached protobuf-3.20.2-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl.metadata (679 bytes)
+2026-01-08T08:56:54.144Z
+Collecting scipy==1.8.0 (from -r /opt/ml/processing/code/requirements.txt (line 6))
+  Using cached scipy-1.8.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.2 kB)
+
+Collecting scipy==1.8.0 (from -r /opt/ml/processing/code/requirements.txt (line 6)) Using cached scipy-1.8.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.2 kB)
+2026-01-08T08:56:54.144Z
+INFO: pip is still looking at multiple versions of evidently to determine which version is compatible with other requirements. This could take a while.
+
+INFO: pip is still looking at multiple versions of evidently to determine which version is compatible with other requirements. This could take a while.
+2026-01-08T08:56:54.144Z
+ERROR: Cannot install -r /opt/ml/processing/code/requirements.txt (line 16) and scikit-learn==0.24.2 because these package versions have conflicting dependencies.
+
+ERROR: Cannot install -r /opt/ml/processing/code/requirements.txt (line 16) and scikit-learn==0.24.2 because these package versions have conflicting dependencies.
+2026-01-08T08:56:54.144Z
+The conflict is caused by:
+    The user requested scikit-learn==0.24.2
+    evidently 0.6.3 depends on scikit-learn>=1.0.1
+
+The conflict is caused by: The user requested scikit-learn==0.24.2 evidently 0.6.3 depends on scikit-learn>=1.0.1
+2026-01-08T08:56:54.144Z
+To fix this you could try to:
+
+To fix this you could try to:
+2026-01-08T08:56:54.144Z
+1. loosen the range of package versions you've specified
+
+1. loosen the range of package versions you've specified
+2026-01-08T08:56:54.144Z
+2. remove package versions to allow pip to attempt to solve the dependency conflict
+
+2. remove package versions to allow pip to attempt to solve the dependency conflict
+2026-01-08T08:56:55.145Z
 [notice] A new release of pip is available: 25.2 -> 25.3
 
 [notice] A new release of pip is available: 25.2 -> 25.3
-2026-01-08T07:22:14.657Z
+2026-01-08T08:56:55.145Z
 [notice] To update, run: pip install --upgrade pip
 
 [notice] To update, run: pip install --upgrade pip
-2026-01-08T07:22:15.658Z
-Traceback (most recent call last):
-  File "/opt/ml/processing/code/monitor.py", line 19, in <module>
-    import pandas as pd
-  File "/miniconda3/lib/python3.9/site-packages/pandas/__init__.py", line 49, in <module>
-    from pandas.core.api import (
-  File "/miniconda3/lib/python3.9/site-packages/pandas/core/api.py", line 1, in <module>
-    from pandas._libs import (
-  File "/miniconda3/lib/python3.9/site-packages/pandas/_libs/__init__.py", line 18, in <module>
-    from pandas._libs.interval import Interval
-  File "pandas/_libs/interval.pyx", line 1, in init pandas._libs.interval
-  File "pandas/_libs/hashtable.pyx", line 1, in init pandas._libs.hashtable
-  File "pandas/_libs/missing.pyx", line 1, in init pandas._libs.missing
-  File "/miniconda3/lib/python3.9/site-packages/pandas/_libs/tslibs/__init__.py", line 39, in <module>
-    from pandas._libs.tslibs import dtypes  # pylint: disable=import-self
-  File "pandas/_libs/tslibs/dtypes.pyx", line 1, in init pandas._libs.tslibs.dtypes
-  File "pandas/_libs/tslibs/ccalendar.pyx", line 1, in init pandas._libs.tslibs.ccalendar
-
-Traceback (most recent call last): File "/opt/ml/processing/code/monitor.py", line 19, in <module> import pandas as pd File "/miniconda3/lib/python3.9/site-packages/pandas/__init__.py", line 49, in <module> from pandas.core.api import ( File "/miniconda3/lib/python3.9/site-packages/pandas/core/api.py", line 1, in <module> from pandas._libs import ( File "/miniconda3/lib/python3.9/site-packages/pandas/_libs/__init__.py", line 18, in <module> from pandas._libs.interval import Interval File "pandas/_libs/interval.pyx", line 1, in init pandas._libs.interval File "pandas/_libs/hashtable.pyx", line 1, in init pandas._libs.hashtable File "pandas/_libs/missing.pyx", line 1, in init pandas._libs.missing File "/miniconda3/lib/python3.9/site-packages/pandas/_libs/tslibs/__init__.py", line 39, in <module> from pandas._libs.tslibs import dtypes # pylint: disable=import-self File "pandas/_libs/tslibs/dtypes.pyx", line 1, in init pandas._libs.tslibs.dtypes File "pandas/_libs/tslibs/ccalendar.pyx", line 1, in init pandas._libs.tslibs.ccalendar
-2026-01-08T07:22:15.658Z
-ImportError: numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()' after cimporting numpy; use '<void>numpy._import_array' to disable if you are certain you don't need it).
+2026-01-08T08:56:55.145Z
+ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
