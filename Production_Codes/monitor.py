@@ -6,13 +6,14 @@ Outputs:
 - Drift metrics (JSON + CSV)
 - Performance metrics (JSON + CSV)
 - Retraining decision (CSV)
+- Per-feature drift plots (PNG)
 """
-
 import os
 import json
 import pickle
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from scipy.stats import ks_2samp
 from sklearn.metrics import (
@@ -33,6 +34,7 @@ MODEL_DIR = "/opt/ml/processing/input/model"
 DRIFT_OUT = "/opt/ml/processing/output/drift"
 METRICS_OUT = "/opt/ml/processing/output/metrics"
 RETRAIN_OUT = "/opt/ml/processing/output/retraining_decision"
+PLOTS_OUT = os.path.join(DRIFT_OUT, "plots")
 
 # -----------------------------
 # Utilities
@@ -63,18 +65,13 @@ def calc_metrics(y_true, y_pred):
 def population_stability_index(ref, cur, bins=10):
     ref = ref.dropna()
     cur = cur.dropna()
-
     breakpoints = np.percentile(ref, np.linspace(0, 100, bins + 1))
     ref_counts, _ = np.histogram(ref, bins=breakpoints)
     cur_counts, _ = np.histogram(cur, bins=breakpoints)
-
     ref_pct = ref_counts / len(ref)
     cur_pct = cur_counts / len(cur)
-
-    psi = np.sum(
-        (ref_pct - cur_pct) * np.log((ref_pct + 1e-6) / (cur_pct + 1e-6))
-    )
-    return float(psi)
+    psi = np.sum((ref_pct - cur_pct) * np.log((ref_pct + 1e-6) / (cur_pct + 1e-6)))
+    return float(psi), ref_counts.tolist(), cur_counts.tolist(), breakpoints.tolist()
 
 
 # -----------------------------
@@ -84,6 +81,7 @@ def main():
     os.makedirs(DRIFT_OUT, exist_ok=True)
     os.makedirs(METRICS_OUT, exist_ok=True)
     os.makedirs(RETRAIN_OUT, exist_ok=True)
+    os.makedirs(PLOTS_OUT, exist_ok=True)
 
     print("📥 Loading data")
     ref = load_csv_from_dir(REFERENCE_DIR)
@@ -94,7 +92,6 @@ def main():
 
     target = "Class"
     exclude = {"ID", target}
-
     feature_cols = [c for c in ref.columns if c not in exclude]
 
     ref[feature_cols] = ref[feature_cols].apply(pd.to_numeric, errors="coerce")
@@ -110,31 +107,28 @@ def main():
     ref_metrics = calc_metrics(ref[target], ref["prediction"])
     cur_metrics = calc_metrics(cur[target], cur["prediction"])
 
-    # JSON outputs
+    # JSON
     with open(os.path.join(METRICS_OUT, "reference_metrics.json"), "w") as f:
         json.dump(ref_metrics, f, indent=2)
     with open(os.path.join(METRICS_OUT, "current_metrics.json"), "w") as f:
         json.dump(cur_metrics, f, indent=2)
 
-    # CSV (dashboard-friendly)
+    # CSV (dashboard)
     perf_df = pd.DataFrame([
         {"dataset": "reference", **ref_metrics},
         {"dataset": "current", **cur_metrics}
     ])
-    perf_df.to_csv(
-        os.path.join(METRICS_OUT, "performance_metrics.csv"),
-        index=False
-    )
+    perf_df.to_csv(os.path.join(METRICS_OUT, "performance_metrics.csv"), index=False)
 
     # -----------------------------
-    # Drift metrics
+    # Drift metrics + plots
     # -----------------------------
     drift_rows = []
     drift_json = {}
 
     for col in feature_cols:
         ks_stat, ks_p = ks_2samp(ref[col].dropna(), cur[col].dropna())
-        psi = population_stability_index(ref[col], cur[col])
+        psi, ref_counts, cur_counts, bins = population_stability_index(ref[col], cur[col])
 
         drift_detected = bool((ks_p < 0.05) or (psi > 0.25))
 
@@ -153,30 +147,35 @@ def main():
             "drift_detected": drift_detected
         })
 
-    # JSON output
+        # -----------------------------
+        # Plot for this feature
+        # -----------------------------
+        plt.figure(figsize=(6,4))
+        plt.hist(ref[col].dropna(), bins=20, alpha=0.5, label="Reference", color="blue")
+        plt.hist(cur[col].dropna(), bins=20, alpha=0.5, label="Current", color="red")
+        plt.title(f"{col} Drift\nKS p={ks_p:.3f}, PSI={psi:.3f}")
+        plt.xlabel(col)
+        plt.ylabel("Count")
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(os.path.join(PLOTS_OUT, f"{col}_drift.png"))
+        plt.close()
+
+    # JSON + CSV
     with open(os.path.join(DRIFT_OUT, "drift_metrics.json"), "w") as f:
         json.dump(drift_json, f, indent=2)
-
-    # CSV output
-    pd.DataFrame(drift_rows).to_csv(
-        os.path.join(DRIFT_OUT, "drift_metrics.csv"),
-        index=False
-    )
+    pd.DataFrame(drift_rows).to_csv(os.path.join(DRIFT_OUT, "drift_metrics.csv"), index=False)
 
     # -----------------------------
     # Retraining decision
     # -----------------------------
     degraded = []
     threshold = 0.10
-
     for metric in ["accuracy", "precision", "recall", "f1_score"]:
         if ref_metrics[metric] - cur_metrics[metric] > threshold:
             degraded.append(metric)
 
-    drifted_features = [
-        row["feature"] for row in drift_rows if row["drift_detected"]
-    ]
-
+    drifted_features = [row["feature"] for row in drift_rows if row["drift_detected"]]
     retrain = bool(degraded or drifted_features)
 
     retrain_df = pd.DataFrame({
@@ -184,11 +183,7 @@ def main():
         "performance_degradation": [", ".join(degraded)],
         "drifted_features": [", ".join(drifted_features)]
     })
-
-    retrain_df.to_csv(
-        os.path.join(RETRAIN_OUT, "retrain_decision.csv"),
-        index=False
-    )
+    retrain_df.to_csv(os.path.join(RETRAIN_OUT, "retrain_decision.csv"), index=False)
 
     print("✅ Monitoring completed successfully")
 
