@@ -1,21 +1,21 @@
 
-# Core scientific stack
-numpy>=1.21.6,<2.0
-pandas>=1.3.5,<2.0
-scipy>=1.7,<2.0
-scikit-learn>=1.1,<2.0
+# Core scientific stack (compatible with container pins)
+numpy>=1.21,<2.0
+pandas==1.1.3
+scipy==1.8.0
+scikit-learn>=1.1,<1.3
 
-# Networking / utilities
-urllib3>=1.26,<3
+# Networking / utilities (keep urllib3 compatible with botocore)
+urllib3==1.26.17
 python-dateutil>=2.8,<3
-protobuf>=3.20,<4
+protobuf==3.20.2
 setuptools>=65
 wheel
 
-# Data IO / viz
-pyarrow>=6,<12
+# Data IO / viz (versions that play well with pandas 1.1.x)
+pyarrow==6.0.1
 matplotlib>=3.3,<4
 plotly>=5,<6
 
-# Monitoring / data drift
-evidently>=0.4,<0.5
+# Monitoring / data drift (compatible with pandas 1.1.x)
+evidently==0.2.2
