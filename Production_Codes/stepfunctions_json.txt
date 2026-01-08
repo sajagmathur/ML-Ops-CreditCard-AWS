@@ -162,92 +162,98 @@
     },
 
     "RunMonitoringJob": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::sagemaker:createProcessingJob.sync",
-      "Parameters": {
-        "ProcessingJobName.$": "States.Format('creditcard-monitoring-{}', States.UUID())",
-        "RoleArn": "arn:aws:iam::075960506214:role/service-role/AmazonSageMaker-ExecutionRole-20251229T181530",
+  "Type": "Task",
+  "Resource": "arn:aws:states:::sagemaker:createProcessingJob.sync",
+  "Parameters": {
+    "ProcessingJobName.$": "States.Format('creditcard-monitoring-{}', States.UUID())",
+    "RoleArn": "arn:aws:iam::075960506214:role/service-role/AmazonSageMaker-ExecutionRole-20251229T181530",
 
-        "AppSpecification": {
-          "ImageUri": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn:1.2-1-cpu-py3",
-          "ContainerEntrypoint": ["python", "/opt/ml/processing/code/monitor.py"]
-        },
+    "AppSpecification": {
+      "ImageUri": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn:1.2-1-cpu-py3",
+      "ContainerEntrypoint": [
+        "python",
+        "/opt/ml/processing/code/monitor.py"
+      ]
+    },
 
-        "ProcessingInputs": [
-          {
-            "InputName": "reference",
-            "S3Input": {
-              "S3Uri": "s3://mlops-creditcard/monitoring_inputs/Training_Data/",
-              "LocalPath": "/opt/ml/processing/input/reference",
-              "S3InputMode": "File",
-              "S3DataType": "S3Prefix"
-            }
-          },
-          {
-            "InputName": "current",
-            "S3Input": {
-              "S3Uri": "s3://mlops-creditcard/monitoring_inputs/Current_Data/",
-              "LocalPath": "/opt/ml/processing/input/current",
-              "S3InputMode": "File",
-              "S3DataType": "S3Prefix"
-            }
-          },
-          {
-            "InputName": "model",
-            "S3Input": {
-              "S3Uri": "s3://mlops-creditcard/prod_outputs/champion_model/",
-              "LocalPath": "/opt/ml/processing/input/model",
-              "S3InputMode": "File",
-              "S3DataType": "S3Prefix"
-            }
-          },
-          {
-            "InputName": "code",
-            "S3Input": {
-              "S3Uri": "s3://mlops-creditcard/prod_codes/source_dir.tar.gz",
-              "LocalPath": "/opt/ml/processing/code",
-              "S3InputMode": "File",
-              "S3DataType": "S3Prefix"
-            }
-          }
-        ],
-
-        "ProcessingOutputs": [
-          {
-            "OutputName": "monitoring",
-            "S3Output": {
-              "S3Uri": "s3://mlops-creditcard/monitoring_outputs/monitoring/",
-              "LocalPath": "/opt/ml/processing/output/monitoring",
-              "S3UploadMode": "EndOfJob"
-            }
-          },
-          {
-            "OutputName": "metrics",
-            "S3Output": {
-              "S3Uri": "s3://mlops-creditcard/monitoring_outputs/metrics/",
-              "LocalPath": "/opt/ml/processing/output/metrics",
-              "S3UploadMode": "EndOfJob"
-            }
-          },
-          {
-            "OutputName": "retraining",
-            "S3Output": {
-              "S3Uri": "s3://mlops-creditcard/monitoring_outputs/retraining_decision/",
-              "LocalPath": "/opt/ml/processing/output/retraining_decision",
-              "S3UploadMode": "EndOfJob"
-            }
-          }
-        ],
-
-        "ProcessingResources": {
-          "ClusterConfig": {
-            "InstanceType": "ml.m5.large",
-            "InstanceCount": 1,
-            "VolumeSizeInGB": 10
-          }
+    "ProcessingInputs": [
+      {
+        "InputName": "reference",
+        "S3Input": {
+          "S3Uri": "s3://mlops-creditcard/monitoring_inputs/Training_Data/",
+          "LocalPath": "/opt/ml/processing/input/reference",
+          "S3DataType": "S3Prefix",
+          "S3InputMode": "File"
         }
       },
-      "End": true
+      {
+        "InputName": "current",
+        "S3Input": {
+          "S3Uri": "s3://mlops-creditcard/monitoring_inputs/Current_Data/",
+          "LocalPath": "/opt/ml/processing/input/current",
+          "S3DataType": "S3Prefix",
+          "S3InputMode": "File"
+        }
+      },
+      {
+        "InputName": "model",
+        "S3Input": {
+          "S3Uri": "s3://mlops-creditcard/prod_outputs/champion_model/",
+          "LocalPath": "/opt/ml/processing/input/model",
+          "S3DataType": "S3Prefix",
+          "S3InputMode": "File"
+        }
+      },
+      {
+        "InputName": "code",
+        "S3Input": {
+          "S3Uri": "s3://mlops-creditcard/prod_codes/source_dir.tar.gz",
+          "LocalPath": "/opt/ml/processing/code",
+          "S3DataType": "S3Prefix",
+          "S3InputMode": "File"
+        }
+      }
+    ],
+
+    "ProcessingOutputConfig": {
+      "Outputs": [
+        {
+          "OutputName": "monitoring",
+          "S3Output": {
+            "S3Uri": "s3://mlops-creditcard/monitoring_outputs/monitoring/",
+            "LocalPath": "/opt/ml/processing/output/monitoring",
+            "S3UploadMode": "EndOfJob"
+          }
+        },
+        {
+          "OutputName": "metrics",
+          "S3Output": {
+            "S3Uri": "s3://mlops-creditcard/monitoring_outputs/metrics/",
+            "LocalPath": "/opt/ml/processing/output/metrics",
+            "S3UploadMode": "EndOfJob"
+          }
+        },
+        {
+          "OutputName": "retraining",
+          "S3Output": {
+            "S3Uri": "s3://mlops-creditcard/monitoring_outputs/retraining_decision/",
+            "LocalPath": "/opt/ml/processing/output/retraining_decision",
+            "S3UploadMode": "EndOfJob"
+          }
+        }
+      ]
+    },
+
+    "ProcessingResources": {
+      "ClusterConfig": {
+        "InstanceType": "ml.m5.large",
+        "InstanceCount": 1,
+        "VolumeSizeInGB": 10
+      }
     }
+  },
+  "End": true
+}
+
   }
 }
