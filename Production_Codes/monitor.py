@@ -1,23 +1,20 @@
 """
 SageMaker Processing Job Script
-Batch Model Monitoring using Evidently
-
-Inputs:
-- Reference data (CSV)
-- Current data (CSV)
-- Champion model (PKL)
+Batch Model Monitoring (NO Evidently)
 
 Outputs:
-- Evidently HTML report
-- Metrics JSON
-- Retraining decision CSV
+- Drift metrics (JSON + CSV)
+- Performance metrics (JSON + CSV)
+- Retraining decision (CSV)
 """
 
 import os
 import json
 import pickle
+import numpy as np
 import pandas as pd
 
+from scipy.stats import ks_2samp
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -26,23 +23,16 @@ from sklearn.metrics import (
     matthews_corrcoef
 )
 
-from evidently import Report
-from evidently.presets import DataDriftPreset, ClassificationPreset
-from evidently import Dataset, DataDefinition
-from evidently import BinaryClassification
-
-
 # -----------------------------
-# SageMaker Processing paths
+# SageMaker paths
 # -----------------------------
 REFERENCE_DIR = "/opt/ml/processing/input/reference"
 CURRENT_DIR = "/opt/ml/processing/input/current"
 MODEL_DIR = "/opt/ml/processing/input/model"
 
-MONITORING_OUT = "/opt/ml/processing/output/monitoring"
-RETRAIN_OUT = "/opt/ml/processing/output/retraining_decision"
+DRIFT_OUT = "/opt/ml/processing/output/drift"
 METRICS_OUT = "/opt/ml/processing/output/metrics"
-
+RETRAIN_OUT = "/opt/ml/processing/output/retraining_decision"
 
 # -----------------------------
 # Utilities
@@ -55,10 +45,8 @@ def load_csv_from_dir(directory):
 
 
 def load_model():
-    model_path = os.path.join(MODEL_DIR, "champion_model.pkl")
-    if not os.path.exists(model_path):
-        raise FileNotFoundError("champion_model.pkl not found")
-    with open(model_path, "rb") as f:
+    path = os.path.join(MODEL_DIR, "champion_model.pkl")
+    with open(path, "rb") as f:
         return pickle.load(f)
 
 
@@ -72,13 +60,30 @@ def calc_metrics(y_true, y_pred):
     }
 
 
+def population_stability_index(ref, cur, bins=10):
+    ref = ref.dropna()
+    cur = cur.dropna()
+
+    breakpoints = np.percentile(ref, np.linspace(0, 100, bins + 1))
+    ref_counts, _ = np.histogram(ref, bins=breakpoints)
+    cur_counts, _ = np.histogram(cur, bins=breakpoints)
+
+    ref_pct = ref_counts / len(ref)
+    cur_pct = cur_counts / len(cur)
+
+    psi = np.sum(
+        (ref_pct - cur_pct) * np.log((ref_pct + 1e-6) / (cur_pct + 1e-6))
+    )
+    return psi
+
+
 # -----------------------------
 # Main
 # -----------------------------
 def main():
-    os.makedirs(MONITORING_OUT, exist_ok=True)
-    os.makedirs(RETRAIN_OUT, exist_ok=True)
+    os.makedirs(DRIFT_OUT, exist_ok=True)
     os.makedirs(METRICS_OUT, exist_ok=True)
+    os.makedirs(RETRAIN_OUT, exist_ok=True)
 
     print("📥 Loading data")
     ref = load_csv_from_dir(REFERENCE_DIR)
@@ -88,15 +93,9 @@ def main():
     model = load_model()
 
     target = "Class"
+    exclude = {"ID", target}
 
-    exclude_cols = {
-        "ID",
-        target,
-        "PREDICTION",
-        "PREDICTION_PROB"
-    }
-
-    feature_cols = [c for c in ref.columns if c not in exclude_cols]
+    feature_cols = [c for c in ref.columns if c not in exclude]
 
     ref[feature_cols] = ref[feature_cols].apply(pd.to_numeric, errors="coerce")
     cur[feature_cols] = cur[feature_cols].apply(pd.to_numeric, errors="coerce")
@@ -106,48 +105,64 @@ def main():
     cur["prediction"] = model.predict(cur[feature_cols])
 
     # -----------------------------
-    # Evidently
-    # -----------------------------
-    dd = DataDefinition(
-        classification=[
-            BinaryClassification(
-                target=target,
-                prediction_labels="prediction"
-            )
-        ],
-        categorical_columns=[target, "prediction"]
-    )
-
-    ds_ref = Dataset.from_pandas(ref, data_definition=dd)
-    ds_cur = Dataset.from_pandas(cur, data_definition=dd)
-
-    report = Report(
-        metrics=[
-            DataDriftPreset(),
-            ClassificationPreset()
-        ]
-    )
-
-    print("📊 Running Evidently report")
-    result = report.run(
-        reference_data=ds_ref,
-        current_data=ds_cur
-    )
-
-    report_path = os.path.join(MONITORING_OUT, "evidently_report.html")
-    result.save_html(report_path)
-
-    # -----------------------------
-    # Metrics
+    # Performance metrics
     # -----------------------------
     ref_metrics = calc_metrics(ref[target], ref["prediction"])
     cur_metrics = calc_metrics(cur[target], cur["prediction"])
 
+    # JSON
     with open(os.path.join(METRICS_OUT, "reference_metrics.json"), "w") as f:
         json.dump(ref_metrics, f, indent=2)
 
     with open(os.path.join(METRICS_OUT, "current_metrics.json"), "w") as f:
         json.dump(cur_metrics, f, indent=2)
+
+    # CSV (dashboard-friendly)
+    perf_df = pd.DataFrame([
+        {"dataset": "reference", **ref_metrics},
+        {"dataset": "current", **cur_metrics}
+    ])
+    perf_df.to_csv(
+        os.path.join(METRICS_OUT, "performance_metrics.csv"),
+        index=False
+    )
+
+    # -----------------------------
+    # Drift metrics
+    # -----------------------------
+    drift_rows = []
+    drift_json = {}
+
+    for col in feature_cols:
+        ks_stat, ks_p = ks_2samp(ref[col].dropna(), cur[col].dropna())
+        psi = population_stability_index(ref[col], cur[col])
+
+        drift_detected = (ks_p < 0.05) or (psi > 0.25)
+
+        drift_json[col] = {
+            "ks_statistic": ks_stat,
+            "ks_pvalue": ks_p,
+            "psi": psi,
+            "drift_detected": drift_detected
+        }
+
+        drift_rows.append({
+            "feature": col,
+            "ks_statistic": ks_stat,
+            "ks_pvalue": ks_p,
+            "psi": psi,
+            "drift_detected": drift_detected
+        })
+
+    # JSON
+    with open(os.path.join(DRIFT_OUT, "drift_metrics.json"), "w") as f:
+        json.dump(drift_json, f, indent=2)
+
+    # CSV (dashboard-friendly)
+    pd.DataFrame(drift_rows).to_csv(
+        os.path.join(DRIFT_OUT, "drift_metrics.csv"),
+        index=False
+    )
 
     # -----------------------------
     # Retraining decision
@@ -159,16 +174,16 @@ def main():
         if ref_metrics[metric] - cur_metrics[metric] > threshold:
             degraded.append(metric)
 
-    decision = "YES" if degraded else "NO"
-    rationale = (
-        f"10% degradation detected in: {', '.join(degraded)}"
-        if degraded else
-        "All metrics within acceptable threshold"
-    )
+    drifted_features = [
+        row["feature"] for row in drift_rows if row["drift_detected"]
+    ]
+
+    retrain = degraded or drifted_features
 
     retrain_df = pd.DataFrame({
-        "retraining_required": [decision],
-        "rationale": [rationale]
+        "retraining_required": ["YES" if retrain else "NO"],
+        "performance_degradation": [", ".join(degraded)],
+        "drifted_features": [", ".join(drifted_features)]
     })
 
     retrain_df.to_csv(
