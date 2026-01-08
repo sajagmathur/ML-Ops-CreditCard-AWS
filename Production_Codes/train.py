@@ -2,12 +2,14 @@
 SageMaker-compatible training script
 Reads data from S3-mounted path
 Writes model + metrics to S3 output path
+Copies training data to monitoring S3 location
 """
 
 import os
 import json
 import pandas as pd
 import joblib
+import boto3
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -17,6 +19,12 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 # -----------------------------
 INPUT_DIR = "/opt/ml/input/data/train"
 OUTPUT_DIR = "/opt/ml/model"
+
+# -----------------------------
+# S3 monitoring config
+# -----------------------------
+MONITORING_BUCKET = "mlops-creditcard"
+MONITORING_PREFIX = "monitoring_inputs/Training_Data"
 
 # -----------------------------
 # Load data
@@ -52,7 +60,7 @@ metrics = {
 print("📊 Metrics:", metrics)
 
 # -----------------------------
-# Save artifacts
+# Save model artifacts
 # -----------------------------
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -62,3 +70,18 @@ with open(os.path.join(OUTPUT_DIR, "metrics.json"), "w") as f:
     json.dump(metrics, f)
 
 print("✅ Model and metrics saved")
+
+# -----------------------------
+# Copy training data to monitoring S3
+# -----------------------------
+print("📤 Uploading training data for monitoring...")
+
+s3 = boto3.client("s3")
+
+s3.upload_file(
+    data_path,
+    MONITORING_BUCKET,
+    f"{MONITORING_PREFIX}/Training.csv"
+)
+
+print(f"✅ Training data copied to s3://{MONITORING_BUCKET}/{MONITORING_PREFIX}/Training.csv")
