@@ -50,12 +50,11 @@ s3 = boto3.client("s3")
 # -----------------------------
 def get_versions_by_tag(tag_key, tag_value):
     versions = client.search_model_versions(f"name='{MODEL_NAME}'")
-    result = []
-    for v in versions:
-        mv = client.get_model_version(MODEL_NAME, v.version)
-        if (mv.tags or {}).get(tag_key) == tag_value:
-            result.append(mv)
-    return result
+    return [
+        client.get_model_version(MODEL_NAME, v.version)
+        for v in versions
+        if (client.get_model_version(MODEL_NAME, v.version).tags or {}).get(tag_key) == tag_value
+    ]
 
 
 def get_latest_challenger():
@@ -76,28 +75,49 @@ def get_metrics(model_version):
 def challenger_wins(challenger_metrics, champion_metrics):
     wins = 0
     total = 0
+
+    print("\n📊 Metric comparison:")
+
     for m in METRICS_TO_COMPARE:
         c = challenger_metrics.get(m)
         ch = champion_metrics.get(m)
+
         if c is None or ch is None:
+            print(f"  ⚠️ {m}: skipped (missing metric)")
             continue
+
         total += 1
+
         if c > ch:
             wins += 1
-    return total > 0 and wins > (total / 2)
+            print(f"  ✅ {m}: challenger {c:.4f} > champion {ch:.4f}")
+        else:
+            print(f"  ❌ {m}: challenger {c:.4f} ≤ champion {ch:.4f}")
+
+    print(f"\n📈 Result: challenger won {wins}/{total} metrics")
+
+    if total == 0:
+        print("🚫 No comparable metrics → no promotion")
+        return False
+
+    if wins > total / 2:
+        print("🏆 Challenger outperformed champion")
+        return True
+    else:
+        print("❌ Challenger did NOT outperform champion")
+        return False
 
 
 def find_latest_model_pkl_s3():
     paginator = s3.get_paginator("list_objects_v2")
     pages = paginator.paginate(Bucket=S3_BUCKET, Prefix=MLFLOW_MODELS_PREFIX)
 
-    candidates = []
-    for page in pages:
-        for obj in page.get("Contents", []):
-            if obj["Key"].endswith("model.pkl"):
-                candidates.append(
-                    {"Key": obj["Key"], "LastModified": obj["LastModified"]}
-                )
+    candidates = [
+        {"Key": obj["Key"], "LastModified": obj["LastModified"]}
+        for page in pages
+        for obj in page.get("Contents", [])
+        if obj["Key"].endswith("model.pkl")
+    ]
 
     if not candidates:
         raise FileNotFoundError("No model.pkl found in mlflow/models")
@@ -113,47 +133,32 @@ def copy_model_to_champion_s3():
     s3.copy_object(
         Bucket=S3_BUCKET,
         CopySource={"Bucket": S3_BUCKET, "Key": latest_key},
-        Key=CHAMPION_KEY
+        Key=CHAMPION_KEY,
     )
+
     print("✅ Champion model updated")
 
 
 def create_inference_tar():
-    """
-    Creates inference_aws.tar.gz containing:
-      - code/inference.py
-      - code/__init__.py
-      - champion_model.pkl
-    """
     tmp_dir = Path(tempfile.mkdtemp())
 
     try:
-        # Create code/ directory
-        code_dir = tmp_dir
-        # code_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy("inference.py", tmp_dir / "inference.py")
+        shutil.copy("__init__.py", tmp_dir / "__init__.py")
 
-        # Copy inference.py → code/inference.py
-        shutil.copy("inference.py", code_dir / "inference.py")
-
-        # ✅ Copy existing __init__.py → code/__init__.py
-        shutil.copy("__init__.py", code_dir / "__init__.py")
-
-        # Download champion_model.pkl → root
         s3.download_file(
             S3_BUCKET,
             CHAMPION_KEY,
-            str(tmp_dir / "champion_model.pkl")
+            str(tmp_dir / "champion_model.pkl"),
         )
 
-        # Create tar.gz
         tar_base = tmp_dir.parent / "inference_aws"
         shutil.make_archive(str(tar_base), "gztar", tmp_dir)
 
-        # Upload tar.gz to S3
         s3.upload_file(
             str(tar_base) + ".tar.gz",
             S3_BUCKET,
-            INFERENCE_TAR_S3_KEY
+            INFERENCE_TAR_S3_KEY,
         )
 
         print(f"📦 Uploaded s3://{S3_BUCKET}/{INFERENCE_TAR_S3_KEY}")
@@ -187,20 +192,20 @@ def main():
         champion_metrics = get_metrics(champion)
 
         if challenger_wins(challenger_metrics, champion_metrics):
-            print("🏆 Challenger wins — promoting")
+            print("🏆 Promotion approved")
             client.set_model_version_tag(MODEL_NAME, champion.version, "role", "archived")
             client.set_model_version_tag(MODEL_NAME, champion.version, "status", "archived")
             client.set_model_version_tag(MODEL_NAME, challenger.version, "role", "champion")
             client.set_model_version_tag(MODEL_NAME, challenger.version, "status", "production")
             promoted = True
         else:
-            print("⚠️ No promotion")
+            print("⚠️ Promotion rejected — champion remains")
 
     if promoted:
         copy_model_to_champion_s3()
         create_inference_tar()
 
-    print(f"DEBUG → promoted={promoted}")
+    print(f"\nDEBUG → promoted={promoted}")
     print("✅ Champion selection completed")
 
 
