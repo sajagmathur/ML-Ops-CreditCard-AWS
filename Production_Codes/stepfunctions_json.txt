@@ -33,7 +33,6 @@
       ],
       "Default": "TrainModel"
     },
-
     "TrainModel": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
@@ -74,14 +73,15 @@
       },
       "Next": "SubmitRegisterModelCommand"
     },
-
     "SubmitRegisterModelCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "ResultPath": "$.RegisterCmd",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": ["i-08d78517733fe6290"],
+        "InstanceIds": [
+          "i-08d78517733fe6290"
+        ],
         "CloudWatchOutputConfig": {
           "CloudWatchLogGroupName": "/aws/ssm/register-model",
           "CloudWatchOutputEnabled": true
@@ -103,13 +103,11 @@
       },
       "Next": "WaitForRegisterModel"
     },
-
     "WaitForRegisterModel": {
       "Type": "Wait",
       "Seconds": 90,
       "Next": "CheckRegisterModelStatus"
     },
-
     "CheckRegisterModelStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
@@ -120,7 +118,6 @@
       },
       "Next": "CheckRegisterModelChoice"
     },
-
     "CheckRegisterModelChoice": {
       "Type": "Choice",
       "Choices": [
@@ -137,19 +134,19 @@
       ],
       "Default": "FailRegisterModel"
     },
-
     "FailRegisterModel": {
       "Type": "Fail",
       "Cause": "Register model failed"
     },
-
     "SubmitSelectChampionCommand": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
       "ResultPath": "$.ChampionCmd",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": ["i-08d78517733fe6290"],
+        "InstanceIds": [
+          "i-08d78517733fe6290"
+        ],
         "CloudWatchOutputConfig": {
           "CloudWatchLogGroupName": "/aws/ssm/select-champion",
           "CloudWatchOutputEnabled": true
@@ -170,13 +167,11 @@
       },
       "Next": "WaitForSelectChampion"
     },
-
     "WaitForSelectChampion": {
       "Type": "Wait",
       "Seconds": 60,
       "Next": "CheckSelectChampionStatus"
     },
-
     "CheckSelectChampionStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
@@ -187,7 +182,6 @@
       },
       "Next": "CheckSelectChampionChoice"
     },
-
     "CheckSelectChampionChoice": {
       "Type": "Choice",
       "Choices": [
@@ -204,12 +198,10 @@
       ],
       "Default": "FailSelectChampion"
     },
-
     "FailSelectChampion": {
       "Type": "Fail",
       "Cause": "Champion selection failed"
     },
-
     "DeleteInferenceModel": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:sagemaker:deleteModel",
@@ -218,13 +210,14 @@
       },
       "Catch": [
         {
-          "ErrorEquals": ["States.ALL"],
+          "ErrorEquals": [
+            "States.ALL"
+          ],
           "Next": "CreateInferenceModel"
         }
       ],
       "Next": "CreateInferenceModel"
     },
-
     "CreateInferenceModel": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:sagemaker:createModel",
@@ -242,7 +235,6 @@
       },
       "Next": "BatchInference"
     },
-
     "BatchInference": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
@@ -271,7 +263,6 @@
       },
       "Next": "RunMonitoringJob"
     },
-
     "RunMonitoringJob": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createProcessingJob.sync",
