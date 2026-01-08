@@ -1,178 +1,258 @@
-@@ -2,7 +2,6 @@
-  "Comment": "Credit card ML batch pipeline",
-  "StartAt": "ExecutionRouter",
+1️⃣ Create IAM Role for Lambda
+Go to
+
+IAM → Roles → Create role
+
+Trusted entity
+
+AWS service
+
+Lambda
+
+Permissions
+
+Attach:
+
+AWSLambdaBasicExecutionRole
+
+Then add inline policy 👇
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::mlops-creditcard/monitoring_outputs/retraining_decision/*"
+    }
+  ]
+}
+
+Role name
+lambda-retraining-decision-role
+
+
+✅ Create role
+
+2️⃣ Create Lambda Function
+Go to
+
+Lambda → Create function
+
+Author from scratch
+
+Function name:
+
+check_retraining_decision
+
+
+Runtime:
+
+Python 3.10
+
+
+Execution role:
+
+Use existing role
+
+Select:
+
+lambda-retraining-decision-role
+
+
+Click Create function
+
+3️⃣ Paste Lambda Code
+
+In Code → lambda_function.py, paste 👇
+
+import boto3
+import csv
+import io
+
+s3 = boto3.client("s3")
+
+BUCKET = "mlops-creditcard"
+KEY = "monitoring_outputs/retraining_decision/retraining_decision.csv"
+
+def lambda_handler(event, context):
+    obj = s3.get_object(Bucket=BUCKET, Key=KEY)
+    body = obj["Body"].read().decode("utf-8")
+
+    reader = csv.reader(io.StringIO(body))
+    rows = list(reader)
+
+    decision = rows[1][0].strip().upper()
+
+    return {
+        "retraining_required": decision
+    }
+
+
+Click Deploy
+
+4️⃣ Test Lambda (CRITICAL)
+Create test event
+
+Name: test
+
+Body:
+
+{}
+
+Click Test
+Expected output:
+{
+  "retraining_required": "YES"
+}
+
+
+If you see:
+
+❌ AccessDenied → IAM policy wrong
+
+❌ IndexError → CSV format wrong
+
+Fix before moving on.
+
+5️⃣ Create Retraining Trigger Step Function
+Go to
+
+Step Functions → Create state machine
+
+Author with code
+
+Type: Standard
+
+Paste definition 👇
+{
+  "Comment": "Auto retraining trigger based on monitoring CSV output",
+  "StartAt": "ReadRetrainingDecision",
   "States": {
-
-    "ExecutionRouter": {
-      "Type": "Choice",
-      "Choices": [
-@@ -29,7 +28,6 @@
-      ],
-      "Default": "TrainModel"
-    },
-
-    "TrainModel": {
+    "ReadRetrainingDecision": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
-@@ -70,13 +68,14 @@
-      },
-      "Next": "SubmitRegisterModelCommand"
-    },
-
-    "SubmitRegisterModelCommand": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
+      "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
-        "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": ["i-08d78517733fe6290"],
-        "InstanceIds": [
-          "i-08d78517733fe6290"
-        ],
-        "CloudWatchOutputConfig": {
-          "CloudWatchLogGroupName": "/aws/ssm/register-model",
-          "CloudWatchOutputEnabled": true
-@@ -103,13 +102,11 @@
+        "FunctionName": "check_retraining_decision"
       },
-      "Next": "WaitForRegisterModel"
-    },
-
-    "WaitForRegisterModel": {
-      "Type": "Wait",
-      "Seconds": 90,
-      "Next": "CheckRegisterModelStatus"
-    },
-
-    "CheckRegisterModelStatus": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
-@@ -119,7 +116,6 @@
+      "ResultSelector": {
+        "decision.$": "$.Payload.retraining_required"
       },
-      "Next": "CheckRegisterModelChoice"
+      "ResultPath": "$.decision",
+      "Next": "DecisionChoice"
     },
 
-    "CheckRegisterModelChoice": {
+    "DecisionChoice": {
       "Type": "Choice",
       "Choices": [
-@@ -136,18 +132,18 @@
-      ],
-      "Default": "FailRegisterModel"
-    },
-
-    "FailRegisterModel": {
-      "Type": "Fail",
-      "Cause": "Register model failed"
-    },
-
-    "SubmitSelectChampionCommand": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand",
-      "Parameters": {
-        "DocumentName": "AWS-RunShellScript",
-        "InstanceIds": ["i-08d78517733fe6290"],
-        "InstanceIds": [
-          "i-08d78517733fe6290"
-        ],
-        "CloudWatchOutputConfig": {
-          "CloudWatchLogGroupName": "/aws/ssm/select-champion",
-          "CloudWatchOutputEnabled": true
-@@ -173,13 +169,11 @@
-      },
-      "Next": "WaitForSelectChampion"
-    },
-
-    "WaitForSelectChampion": {
-      "Type": "Wait",
-      "Seconds": 90,
-      "Seconds": 60,
-      "Next": "CheckSelectChampionStatus"
-    },
-
-    "CheckSelectChampionStatus": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::aws-sdk:ssm:getCommandInvocation",
-@@ -189,7 +183,6 @@
-      },
-      "Next": "CheckSelectChampionChoice"
-    },
-
-    "CheckSelectChampionChoice": {
-      "Type": "Choice",
-      "Choices": [
-@@ -201,44 +194,75 @@
         {
-          "Variable": "$.Status",
-          "StringEquals": "Success",
-          "Next": "BatchInference"
-          "Next": "DeleteInferenceModel"
+          "Variable": "$.decision.decision",
+          "StringEquals": "YES",
+          "Next": "TriggerTrainingPipeline"
         }
       ],
-      "Default": "FailSelectChampion"
+      "Default": "NoRetrainingNeeded"
     },
 
-    "FailSelectChampion": {
-      "Type": "Fail",
-      "Cause": "Champion selection failed"
-    },
-
-    "DeleteInferenceModel": {
+    "TriggerTrainingPipeline": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::aws-sdk:sagemaker:deleteModel",
+      "Resource": "arn:aws:states:::states:startExecution",
       "Parameters": {
-        "ModelName": "inference-aws-model"
-      },
-      "Catch": [
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "Next": "CreateInferenceModel"
-        }
-      ],
-      "Next": "CreateInferenceModel"
-    },
-    "CreateInferenceModel": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::aws-sdk:sagemaker:createModel",
-      "Parameters": {
-        "ModelName": "inference-aws-model",
-        "ExecutionRoleArn": "arn:aws:iam::075960506214:role/service-role/AmazonSageMaker-ExecutionRole-20251229T181530",
-        "PrimaryContainer": {
-          "Image": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn:1.2-1-cpu-py3",
-          "ModelDataUrl": "s3://mlops-creditcard/prod_codes/inference_aws.tar.gz",
-          "Environment": {
-            "SAGEMAKER_PROGRAM": "inference.py",
-            "SAGEMAKER_SUBMIT_DIRECTORY": "s3://mlops-creditcard/prod_codes/inference_aws.tar.gz"
-          }
-        }
-      },
-      "Next": "BatchInference"
-    },
-    "BatchInference": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
-      "Parameters": {
-        "TransformJobName.$": "States.Format('creditcard-batch-inference-{}', States.UUID())",
-        "ModelName": "inference-aws-model",
-        "TransformInput": {
-          "DataSource": {
-            "S3DataSource": {
-              "S3DataType": "S3Prefix",
-              "S3Uri": "s3://mlops-creditcard/prod_inputs/batch_input.csv"
-            }
-          },
-          "ContentType": "text/csv",
-          "SplitType": "Line"
-        },
-        "TransformOutput": {
-          "S3OutputPath": "s3://mlops-creditcard/prod_outputs/predictions/",
-          "Accept": "text/csv",
-          "AssembleWith": "Line"
-        },
-        "TransformResources": {
-          "InstanceType": "ml.m5.large",
-          "InstanceCount": 1
+        "StateMachineArn": "PASTE_YOUR_MAIN_PIPELINE_ARN_HERE",
+        "Input": {
+          "run": "all",
+          "triggered_by": "monitoring",
+          "reason": "auto_retraining"
         }
       },
       "End": true
+    },
+
+    "NoRetrainingNeeded": {
+      "Type": "Succeed"
     }
   }
+}
+
+Replace:
+PASTE_YOUR_MAIN_PIPELINE_ARN_HERE
+
+IAM Role
+
+Create new role automatically
+
+Or reuse your existing Step Functions role
+
+Name
+creditcard-auto-retraining-trigger
+
+
+Click Create state machine
+
+6️⃣ Test Step Function Manually
+Click Start execution
+
+Input:
+
+{}
+
+Expected behavior
+CSV value	Result
+YES	Training pipeline starts
+NO	Workflow ends successfully
+
+Check:
+
+Execution graph
+
+Main pipeline execution started
+
+7️⃣ (Optional) Schedule It Automatically
+EventBridge → Create rule
+
+Name:
+
+retraining-check-schedule
+
+
+Schedule:
+
+cron(0 3 ? * MON *)   # Monday 8:30 AM IST
+
+Target
+
+Step Functions
+
+Select:
+
+creditcard-auto-retraining-trigger
+
+8️⃣ End-to-End Validation Checklist
+
+✅ Monitoring job ran
+✅ CSV present in S3
+✅ Lambda returns YES/NO
+✅ Step Function branches correctly
+✅ Training pipeline starts automatically
+
+🔥 What You Have Now
+
+Fully automated retraining
+
+Monitoring-driven orchestration
+
+No human intervention
+
+Enterprise-grade MLOps pattern
+
+If you want next:
+
+cooldown window (don’t retrain too often)
+
+severity-based retraining
+
+Slack / SNS alert before retraining
+
+versioned retraining history in DynamoDB
+
+Just say the word 🚀

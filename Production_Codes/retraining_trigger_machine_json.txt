@@ -1,0 +1,48 @@
+{
+  "Comment": "Auto retraining trigger based on monitoring CSV output",
+  "StartAt": "ReadRetrainingDecision",
+  "States": {
+    "ReadRetrainingDecision": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "check_retraining_decision"
+      },
+      "ResultSelector": {
+        "decision.$": "$.Payload.retraining_required"
+      },
+      "ResultPath": "$.decision",
+      "Next": "DecisionChoice"
+    },
+
+    "DecisionChoice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.decision.decision",
+          "StringEquals": "YES",
+          "Next": "TriggerTrainingPipeline"
+        }
+      ],
+      "Default": "NoRetrainingNeeded"
+    },
+
+    "TriggerTrainingPipeline": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution",
+      "Parameters": {
+        "StateMachineArn": "YOUR_MAIN_PIPELINE_STEPFUNCTION_ARN",
+        "Input": {
+          "run": "all",
+          "triggered_by": "monitoring",
+          "reason": "auto_retraining"
+        }
+      },
+      "End": true
+    },
+
+    "NoRetrainingNeeded": {
+      "Type": "Succeed"
+    }
+  }
+}
