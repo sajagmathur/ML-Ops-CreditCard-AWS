@@ -7,7 +7,7 @@ Outputs:
 - Performance metrics (JSON + CSV)
 - Retraining decision (CSV)
 """
-# Update
+
 import os
 import json
 import pickle
@@ -52,11 +52,11 @@ def load_model():
 
 def calc_metrics(y_true, y_pred):
     return {
-        "accuracy": accuracy_score(y_true, y_pred),
-        "precision": precision_score(y_true, y_pred, zero_division=0),
-        "recall": recall_score(y_true, y_pred, zero_division=0),
-        "f1_score": f1_score(y_true, y_pred, zero_division=0),
-        "matthews_corrcoef": matthews_corrcoef(y_true, y_pred)
+        "accuracy": float(accuracy_score(y_true, y_pred)),
+        "precision": float(precision_score(y_true, y_pred, zero_division=0)),
+        "recall": float(recall_score(y_true, y_pred, zero_division=0)),
+        "f1_score": float(f1_score(y_true, y_pred, zero_division=0)),
+        "matthews_corrcoef": float(matthews_corrcoef(y_true, y_pred))
     }
 
 
@@ -74,7 +74,7 @@ def population_stability_index(ref, cur, bins=10):
     psi = np.sum(
         (ref_pct - cur_pct) * np.log((ref_pct + 1e-6) / (cur_pct + 1e-6))
     )
-    return psi
+    return float(psi)
 
 
 # -----------------------------
@@ -110,10 +110,9 @@ def main():
     ref_metrics = calc_metrics(ref[target], ref["prediction"])
     cur_metrics = calc_metrics(cur[target], cur["prediction"])
 
-    # JSON
+    # JSON outputs
     with open(os.path.join(METRICS_OUT, "reference_metrics.json"), "w") as f:
         json.dump(ref_metrics, f, indent=2)
-
     with open(os.path.join(METRICS_OUT, "current_metrics.json"), "w") as f:
         json.dump(cur_metrics, f, indent=2)
 
@@ -137,28 +136,28 @@ def main():
         ks_stat, ks_p = ks_2samp(ref[col].dropna(), cur[col].dropna())
         psi = population_stability_index(ref[col], cur[col])
 
-        drift_detected = (ks_p < 0.05) or (psi > 0.25)
+        drift_detected = bool((ks_p < 0.05) or (psi > 0.25))
 
         drift_json[col] = {
-            "ks_statistic": ks_stat,
-            "ks_pvalue": ks_p,
+            "ks_statistic": float(ks_stat),
+            "ks_pvalue": float(ks_p),
             "psi": psi,
             "drift_detected": drift_detected
         }
 
         drift_rows.append({
             "feature": col,
-            "ks_statistic": ks_stat,
-            "ks_pvalue": ks_p,
+            "ks_statistic": float(ks_stat),
+            "ks_pvalue": float(ks_p),
             "psi": psi,
             "drift_detected": drift_detected
         })
 
-    # JSON
+    # JSON output
     with open(os.path.join(DRIFT_OUT, "drift_metrics.json"), "w") as f:
         json.dump(drift_json, f, indent=2)
 
-    # CSV (dashboard-friendly)
+    # CSV output
     pd.DataFrame(drift_rows).to_csv(
         os.path.join(DRIFT_OUT, "drift_metrics.csv"),
         index=False
@@ -178,7 +177,7 @@ def main():
         row["feature"] for row in drift_rows if row["drift_detected"]
     ]
 
-    retrain = degraded or drifted_features
+    retrain = bool(degraded or drifted_features)
 
     retrain_df = pd.DataFrame({
         "retraining_required": ["YES" if retrain else "NO"],
