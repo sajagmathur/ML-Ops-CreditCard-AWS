@@ -1,16 +1,14 @@
+# DO NOT change these — pinned to SageMaker sklearn container 2.0
 numpy>=1.21.6,<2.0
 pandas==1.1.3
-scipy==1.8.0
 scikit-learn==1.2.1
+scipy==1.8.0
 urllib3==1.26.17
 
-setuptools>=65.0
-wheel
-protobuf==3.20.2
+# Required by pandas / sklearn runtime
 python-dateutil==2.8.1
+pytz==2023.3
 
-pyarrow==6.0.1
-matplotlib==3.3.4
-plotly==5.13.1
-
-evidently==0.4.14
+# Optional but safe (used indirectly by sklearn/scipy)
+joblib>=1.1.0
+threadpoolctl>=3.1.0
