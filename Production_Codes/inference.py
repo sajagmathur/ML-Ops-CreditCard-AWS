@@ -67,7 +67,5 @@ def predict_fn(input_data, model):
 # Output formatting
 # -------------------------------------------------
 def output_fn(prediction_output, accept):
-    if accept != "text/csv":
-        raise ValueError(f"Unsupported accept type: {accept}")
-
-    return prediction_output.to_csv(index=False), accept
+    # Force CSV output for Batch Transform
+    return prediction_output.to_csv(index=False), "text/csv"

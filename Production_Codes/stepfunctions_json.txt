@@ -173,6 +173,7 @@
         },
         "TransformOutput": {
           "S3OutputPath": "s3://mlops-creditcard/prod_outputs/predictions/",
+          "Accept": "text/csv",
           "AssembleWith": "Line"
         },
         "TransformResources": {

@@ -1,0 +1,62 @@
+{
+  "Comment": "Credit card ML batch inference pipeline",
+  "StartAt": "DeleteInferenceModel",
+  "States": {
+    "DeleteInferenceModel": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:sagemaker:deleteModel",
+      "Parameters": {
+        "ModelName": "inference-aws-model"
+      },
+      "Catch": [
+        { "ErrorEquals": ["States.ALL"], "Next": "CreateInferenceModel" }
+      ],
+      "Next": "CreateInferenceModel"
+    },
+    "CreateInferenceModel": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:sagemaker:createModel",
+      "Parameters": {
+        "ModelName": "inference-aws-model",
+        "ExecutionRoleArn": "arn:aws:iam::075960506214:role/service-role/AmazonSageMaker-ExecutionRole-20251229T181530",
+        "PrimaryContainer": {
+          "Image": "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn:1.2-1-cpu-py3",
+          "ModelDataUrl": "s3://mlops-creditcard/prod_codes/inference_aws.tar.gz",
+          "Environment": {
+            "SAGEMAKER_PROGRAM": "inference.py",
+            "SAGEMAKER_SUBMIT_DIRECTORY": "s3://mlops-creditcard/prod_codes/inference_aws.tar.gz"
+          }
+        }
+      },
+      "Next": "BatchInference"
+    },
+    "BatchInference": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
+      "Parameters": {
+        "TransformJobName.$": "States.Format('creditcard-batch-{}', States.UUID())",
+        "ModelName": "inference-aws-model",
+        "TransformInput": {
+          "DataSource": {
+            "S3DataSource": {
+              "S3DataType": "S3Prefix",
+              "S3Uri": "s3://mlops-creditcard/prod_inputs/batch_input.csv"
+            }
+          },
+          "ContentType": "text/csv",
+          "SplitType": "Line"
+        },
+        "TransformOutput": {
+          "S3OutputPath": "s3://mlops-creditcard/prod_outputs/predictions/",
+          "Accept": "text/csv",
+          "AssembleWith": "Line"
+        },
+        "TransformResources": {
+          "InstanceType": "ml.m5.large",
+          "InstanceCount": 1
+        }
+      },
+      "End": true
+    }
+  }
+}
