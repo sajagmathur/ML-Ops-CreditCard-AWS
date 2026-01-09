@@ -33,7 +33,7 @@ CHAMPION_MODEL_KEY = "prod_outputs/champion_model/champion_model.pkl"
 INFERENCE_TAR_S3_KEY = "prod_codes/inference_aws.tar.gz"
 
 # Training data (source → monitoring reference)
-SOURCE_TRAINING_DATA_KEY = "train_data/Training.csv"
+SOURCE_TRAINING_DATA_KEY = "data/raw/Training.csv"
 MONITORING_TRAINING_DATA_KEY = (
     "monitoring_inputs/Training_Data/Training.csv"
 )
