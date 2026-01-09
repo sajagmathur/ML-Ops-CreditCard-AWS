@@ -10,6 +10,15 @@ Building Credit Card Fraud Model Using Amazon Web Services
 7. Inferencing: Sagemaker Deployable Model, Sagemaker Batch Transform Job
 8. Monitoring: Sagemaker Processing Job
 
+**Pipeline 2**
+1. Sagemaker Batch Transform Job
+2. CI Implementation using Github Actions
+3. Machine using Step Functions
+
+**Pipeline 3**
+1. Sagemaker Processing Job
+2. CI Implementation using Github Actions
+3. Machine using Step Functions
 Other Services Used:
 1. AWS Cloud SHell: For running shell scripts
 2. AWS CloudWatch: For logs
