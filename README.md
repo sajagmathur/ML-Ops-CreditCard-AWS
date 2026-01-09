@@ -23,8 +23,9 @@ Other Services Used:
 1. AWS Cloud SHell: For running shell scripts
 2. AWS CloudWatch: For logs
 
-Run Modes:
-
+**Pipeline 4**
+1. Retraining trigger using Lambda
+2. Machine Implemented in StepFunctions
 Execution input	What runs
  { "run": "all" }	Full pipeline
 { "run": "train" }	Start from Training
